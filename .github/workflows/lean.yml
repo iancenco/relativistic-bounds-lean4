@@ -1,0 +1,52 @@
+name: Lean 4 Verify
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Elan & Lean 4 toolchain
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch prebuilt Mathlib oleans and build
+        run: |
+          lake exe cache get
+          lake build
+
+      - name: Verify zero sorry / escape hatches
+        run: |
+          if grep -rnE '\b(sorry|admit|unsafe|implemented_by|native_decide)\b|^axiom\b|@\[extern' NaturalMechanics/; then
+            echo "Forbidden token found!"
+            exit 1
+          fi
+          echo "Clean: zero sorry, admit, custom axioms, or unsafe escape hatches."
+
+      - name: Verify standard axioms only (#print axioms)
+        run: |
+          cat << 'EOF' | lake env lean --stdin | tee axioms.log
+          import NaturalMechanics.T4A18_KerrInertia
+          #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.t4a18_unconditional_kerr_inertia_floor
+          #print axioms NaturalMechanics.T4A18.t4a18_kerr_inertia_floor_of_antitone_piecewise
+          #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.compactness_wall
+          EOF
+          python3 - << 'PY'
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          text = open("axioms.log").read()
+          lines = [ln.strip() for ln in text.splitlines() if "depends on axioms:" in ln]
+          assert len(lines) == 3, f"Expected 3 axiom lines, got {len(lines)}:\n{text}"
+          for ln in lines:
+              inside = ln.split("[", 1)[1].rsplit("]", 1)[0]
+              axioms = {a.strip() for a in inside.split(",") if a.strip()}
+              assert axioms <= allowed, f"Unexpected axioms in {ln}: {axioms - allowed}"
+          print("PASS: All main theorems depend strictly on [propext, Classical.choice, Quot.sound].")
+          PY
