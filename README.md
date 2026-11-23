@@ -2,6 +2,9 @@
 
 [![Lean 4 Verify](https://github.com/iancenco/relativistic-bounds-lean4/actions/workflows/lean.yml/badge.svg)](https://github.com/iancenco/relativistic-bounds-lean4/actions/workflows/lean.yml)
 
+**Author:** Serghei Iancenco  
+**Methodology:** AI-assisted mathematical-physics discovery, exact-arithmetic certification, Lean 4 formalization, and adversarial cross-model auditing (directed and curated by the author).
+
 Machine-checked **Lean 4.36.0 + Mathlib** formalizations of zero-equation-of-state (zero-EOS) bounds in General Relativity and relativistic continuum mechanics, verified with zero `sorry`, zero custom axioms, and independent cross-model statement & physics audits.
 
 ---
@@ -72,6 +75,18 @@ With the prebuilt Mathlib cache fetched, `lake build` compiles `NaturalMechanics
 
 - [`scripts/t4a18_bernstein_certs.py`](scripts/t4a18_bernstein_certs.py) — regenerates the exact rational Bernstein certificates embedded in `T4A18_KerrInertia.lean` (requires `sympy`).
 - [`scripts/verify_t4a18_kerr_inertia_floor.py`](scripts/verify_t4a18_kerr_inertia_floor.py) — standalone exact-Sturm / exact-Bernstein Python verification script accompanying the original continuum proof (`python scripts/verify_t4a18_kerr_inertia_floor.py`, requires `sympy`, `numpy`, `scipy`).
+
+---
+
+## Authorship & AI-Assisted Workflow Disclosure
+
+This repository is authored and maintained by **Serghei Iancenco**. Both the continuum proof discovery (exact rational Sturm / Bernstein certificate synthesis) and the Lean 4.36.0 formalization were carried out via an **AI-assisted multi-model workflow**:
+
+1. **Discovery & Exact Certification:** Frontier models propose and tighten continuum proofs while rejecting floating-point numerics in favor of exact rational algebraic / Bernstein / Sturm certificates, followed by blind cross-model re-verification from scratch.
+2. **Lean 4 Formalization:** An AI formalization pass translates the certified proof chain into zero-`sorry` Lean 4 + Mathlib code.
+3. **Adversarial Cross-Model Audit:** A separate model performs a hostile statement, physics-faithfulness, axiom, and non-vacuity audit ([`AUDIT-T4A18.md`](AUDIT-T4A18.md)), catching scope defects (such as the initial omission of interior density jumps) before sign-off.
+
+Logical soundness of the formalized theorems depends strictly on the Lean 4 kernel and the three standard axioms `[propext, Classical.choice, Quot.sound]` (checked on every commit by GitHub Actions). Physical faithfulness of the encoded TOV/Hartle definitions and non-vacuity of the star structures should be judged directly from [`NaturalMechanics/T4A18_KerrInertia.lean`](NaturalMechanics/T4A18_KerrInertia.lean) and [`AUDIT-T4A18.md`](AUDIT-T4A18.md); human physicist review and corrections are warmly welcomed via Issues or PRs.
 
 ---
 

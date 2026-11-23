@@ -40,13 +40,13 @@ jobs:
           #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.compactness_wall
           EOF
           python3 - << 'PY'
+          import re
           allowed = {"propext", "Classical.choice", "Quot.sound"}
           text = open("axioms.log").read()
-          lines = [ln.strip() for ln in text.splitlines() if "depends on axioms:" in ln]
-          assert len(lines) == 3, f"Expected 3 axiom lines, got {len(lines)}:\n{text}"
-          for ln in lines:
-              inside = ln.split("[", 1)[1].rsplit("]", 1)[0]
-              axioms = {a.strip() for a in inside.split(",") if a.strip()}
-              assert axioms <= allowed, f"Unexpected axioms in {ln}: {axioms - allowed}"
+          matches = re.findall(r"depends on axioms:\s*\[([^\]]*)\]", text, flags=re.S)
+          assert len(matches) == 3, f"Expected 3 axiom blocks, got {len(matches)}:\n{text}"
+          for block in matches:
+              axioms = {a.strip() for a in block.split(",") if a.strip()}
+              assert axioms <= allowed, f"Unexpected axioms: {axioms - allowed}"
           print("PASS: All main theorems depend strictly on [propext, Classical.choice, Quot.sound].")
           PY
