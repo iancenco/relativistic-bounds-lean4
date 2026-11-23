@@ -3,27 +3,27 @@
 [![Lean 4 Verify](https://github.com/iancenco/relativistic-bounds-lean4/actions/workflows/lean.yml/badge.svg)](https://github.com/iancenco/relativistic-bounds-lean4/actions/workflows/lean.yml)
 
 **Author:** Serghei Iancenco  
-**Methodology:** AI-assisted mathematical-physics discovery, exact-arithmetic certification, Lean 4 formalization, and adversarial cross-model auditing (directed and curated by the author).
+**Methodology:** AI-assisted mathematical-physics research, exact-arithmetic certification, Lean 4 formalization, and cross-model statement auditing (directed by the author).
 
-Machine-checked **Lean 4.36.0 + Mathlib** formalizations of zero-equation-of-state (zero-EOS) bounds in General Relativity and relativistic continuum mechanics, verified with zero `sorry`, zero custom axioms, and independent cross-model statement & physics audits.
+Machine-checked **Lean 4.36.0 + Mathlib** formalizations of equation-of-state-independent bounds in General Relativity and relativistic continuum mechanics, checked with zero `sorry` and standard axioms only.
 
 ---
 
-## Flagship Theorem: Unconditional Kerr Black-Hole Inertia Floor (`I > 4 M³`)
+## Theorem: Moment-of-Inertia Lower Bound (`I > 4 M³`)
 
 **File:** [`NaturalMechanics/T4A18_KerrInertia.lean`](NaturalMechanics/T4A18_KerrInertia.lean) (`1,576` lines)  
-**Independent Statement & Physics Audit:** [`AUDIT-T4A18.md`](AUDIT-T4A18.md) (**`PASS (CLEAN)`**)
+**Statement & Physics Audit:** [`AUDIT-T4A18.md`](AUDIT-T4A18.md)
 
 ### Physical Statement (`G = c = 1`)
 
 Let `(m, ε, p, Z)` be any regular, horizonless, static, spherically symmetric isotropic relativistic star of radius `R > 0` and total mass `M = m(R) > 0` obeying:
 1. **Einstein–TOV + Hartle (1967) slow-rotation equations** off an arbitrary finite set of radial interfaces `jumps : Finset ℝ` (allowing arbitrary finite first-order interior density jumps as well as a surface density jump), with continuous junction matching of `m`, `p`, and the Hartle frame-dragging variable `Z = r s ω̄'/ω̄` across every interface;
-2. **Non-increasing energy density** (`AntitoneOn ε (0, R]`, or equivalently non-increasing mean density `m(r)/r³`), with **zero equation-of-state assumption and zero sound-speed causality assumption**;
+2. **Non-increasing energy density** (`AntitoneOn ε (0, R]`, or equivalently non-increasing mean density `m(r)/r³`), with no equation-of-state or sound-speed causality assumption;
 3. **Dominant Energy Condition (`0 ≤ p ≤ ε`)** and vacuum surface boundary `p(R) = 0`.
 
 Then:
-- **Exact Bondi–Pontryagin DEC compactness wall:** `m(r)/r < 51/125 = 0.408` for every `r ∈ (0, R]` (so `s(r)² = 1 − 2 m(r)/r > 23/125`).
-- **Unconditional Kerr inertia floor:** The exterior Hartle moment of inertia `I = R³ Z(R) / (6 s(R) + 2 Z(R))` strictly exceeds the Kerr black-hole value `I_Kerr = 4 M³`:
+- **Compactness bound (Bondi–Pontryagin DEC bound):** `m(r)/r < 51/125 = 0.408` for every `r ∈ (0, R]` (so `s(r)² = 1 − 2 m(r)/r > 23/125`).
+- **Moment-of-inertia bound:** The exterior Hartle moment of inertia `I = R³ Z(R) / (6 s(R) + 2 Z(R))` strictly exceeds the Kerr black-hole value `I_Kerr = 4 M³`:
 
 ```math
 I \;>\; 4 M^3 \;=\; I_{\mathrm{Kerr}}.
@@ -49,16 +49,16 @@ theorem MonotoneIsotropicDECStar.compactness_wall
 2. **Part B (`compactness_wall`):** Exact two-piece Bondi–Pontryagin differential barrier (`u_j = 49/200`) proving `m(r)/r < 51/125` across arbitrary finite density jumps, with all polynomial sign inequalities discharged by exact rational Bernstein positivity certificates (zero floating-point arithmetic).
 3. **Part C (`t4a18_unconditional_kerr_inertia_floor`):** At `α = 69/100`, `Ī₀ = 4`, exact rational Bernstein certificates discharge `c_e > 0` and `c_e + c_p > 0` across `s² ∈ [23/125, 1]`, propagating a strict exponential barrier across any finite set of density jumps from the centre to the surface `p(R) = 0`, yielding `Z(R) > Z_c(s(R))` and hence `I > 4 M³`.
 
-### Trust & Independent Audit
+### Verification and Audit Notes
 
 - **Toolchain:** `leanprover/lean4:v4.36.0` + `mathlib v4.36.0`
-- **Axioms:** `#print axioms` returns strictly `[propext, Classical.choice, Quot.sound]` for every theorem (enforced automatically in CI on every push).
-- **Escape hatches:** Zero `sorry`, `admit`, custom `axiom`, `unsafe`, `implemented_by`, `native_decide`, or `@[extern]`.
-- **Independent Statement & Physics Audit ([`AUDIT-T4A18.md`](AUDIT-T4A18.md)):** An adversarial cross-model audit checked every sign and coefficient of the TOV and Hartle equations, constructed explicit analytic smooth (`C = 1/10` Schwarzschild interior) and two-layer discontinuous-density (`jumps = {1/2, 1}`) physical witnesses satisfying every Lean structure field, caught an initial scope omission of interior density jumps, verified the `PiecewiseRegularIsotropicDECStar` repair, and signed off `PASS (CLEAN)`. *(Note: as recorded explicitly in `AUDIT-T4A18.md`, non-vacuity / inhabitance of `MonotoneIsotropicDECStar` is verified mathematically outside Lean and has not yet been formalized inside Lean.)*
+- **Axioms:** `#print axioms` returns `[propext, Classical.choice, Quot.sound]` for every theorem (checked in CI on every push).
+- **Escape hatches:** No `sorry`, `admit`, custom `axiom`, `unsafe`, `implemented_by`, `native_decide`, or `@[extern]`.
+- **Statement & physics audit ([`AUDIT-T4A18.md`](AUDIT-T4A18.md)):** A separate review pass checked the signs and coefficients of the TOV and Hartle equations, constructed explicit analytic smooth (`C = 1/10` Schwarzschild interior) and two-layer discontinuous-density (`jumps = {1/2, 1}`) physical witnesses satisfying the Lean structure fields, caught an initial scope omission of interior density jumps, and re-checked the `PiecewiseRegularIsotropicDECStar` revision. *(As noted in `AUDIT-T4A18.md`, non-vacuity / inhabitance of `MonotoneIsotropicDECStar` is checked mathematically outside Lean and has not yet been formalized inside Lean.)*
 
 ---
 
-## Verify Locally in 2 Commands
+## Building and Checking Locally
 
 Requires [Elan](https://github.com/leanprover/elan) (Lean 4 toolchain manager):
 
@@ -78,13 +78,13 @@ With the prebuilt Mathlib cache fetched, `lake build` compiles `NaturalMechanics
 
 ---
 
-## Authorship & AI-Assisted Workflow Disclosure
+## Authorship & AI-Assisted Workflow
 
-This repository is authored and maintained by **Serghei Iancenco**. Both the continuum proof discovery (exact rational Sturm / Bernstein certificate synthesis) and the Lean 4.36.0 formalization were carried out via an **AI-assisted multi-model workflow**:
+This repository is authored and maintained by **Serghei Iancenco**. Both the continuum proof development (exact rational Sturm / Bernstein certificate synthesis) and the Lean 4.36.0 formalization were carried out via an **AI-assisted multi-model workflow**:
 
-1. **Discovery & Exact Certification:** Frontier models propose and tighten continuum proofs while rejecting floating-point numerics in favor of exact rational algebraic / Bernstein / Sturm certificates, followed by blind cross-model re-verification from scratch.
-2. **Lean 4 Formalization:** An AI formalization pass translates the certified proof chain into zero-`sorry` Lean 4 + Mathlib code.
-3. **Adversarial Cross-Model Audit:** A separate model performs a hostile statement, physics-faithfulness, axiom, and non-vacuity audit ([`AUDIT-T4A18.md`](AUDIT-T4A18.md)), catching scope defects (such as the initial omission of interior density jumps) before sign-off.
+1. **Proof Development & Exact Certification:** Language models propose and tighten continuum proofs using exact rational algebraic / Bernstein / Sturm certificates rather than floating-point numerics, followed by independent cross-model re-verification.
+2. **Lean 4 Formalization:** A formalization pass translates the certified proof chain into zero-`sorry` Lean 4 + Mathlib code.
+3. **Cross-Model Statement & Physics Audit:** A separate model reviews the formalized definitions for physics faithfulness, axiom usage, and non-vacuity ([`AUDIT-T4A18.md`](AUDIT-T4A18.md)), catching scope defects (such as the initial omission of interior density jumps) before sign-off.
 
 Logical soundness of the formalized theorems depends strictly on the Lean 4 kernel and the three standard axioms `[propext, Classical.choice, Quot.sound]` (checked on every commit by GitHub Actions). Physical faithfulness of the encoded TOV/Hartle definitions and non-vacuity of the star structures should be judged directly from [`NaturalMechanics/T4A18_KerrInertia.lean`](NaturalMechanics/T4A18_KerrInertia.lean) and [`AUDIT-T4A18.md`](AUDIT-T4A18.md); human physicist review and corrections are warmly welcomed via Issues or PRs.
 
