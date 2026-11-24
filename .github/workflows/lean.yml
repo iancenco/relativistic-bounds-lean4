@@ -37,6 +37,8 @@ jobs:
           import NaturalMechanics.T4A18_KerrInertia
           #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.t4a18_unconditional_kerr_inertia_floor
           #print axioms NaturalMechanics.T4A18.t4a18_kerr_inertia_floor_of_antitone_piecewise
+          #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.t4a18_uniform_kerr_inertia_gap
+          #print axioms NaturalMechanics.T4A18.t4a18_uniform_kerr_inertia_gap_of_antitone_piecewise
           #print axioms NaturalMechanics.T4A18.MonotoneIsotropicDECStar.compactness_wall
           EOF
           python3 - << 'PY'
@@ -44,7 +46,7 @@ jobs:
           allowed = {"propext", "Classical.choice", "Quot.sound"}
           text = open("axioms.log").read()
           matches = re.findall(r"depends on axioms:\s*\[([^\]]*)\]", text, flags=re.S)
-          assert len(matches) == 3, f"Expected 3 axiom blocks, got {len(matches)}:\n{text}"
+          assert len(matches) == 5, f"Expected 5 axiom blocks, got {len(matches)}:\n{text}"
           for block in matches:
               axioms = {a.strip() for a in block.split(",") if a.strip()}
               assert axioms <= allowed, f"Unexpected axioms: {axioms - allowed}"

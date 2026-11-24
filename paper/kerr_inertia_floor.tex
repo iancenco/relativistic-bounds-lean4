@@ -17,7 +17,6 @@
 
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
-\theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
 \newcommand{\R}{\mathbb{R}}
@@ -26,19 +25,19 @@
 \newcommand{\Ibar}{\bar{I}}
 \newcommand{\wbar}{\bar{\omega}}
 
-\title{\textbf{A Machine-Checked Equation-of-State-Independent Kerr Lower Bound on the Moment of Inertia of Relativistic Stars}}
-\author{Serghei Iancenco\thanks{Independent researcher. Correspondence via \url{https://github.com/iancenco/relativistic-bounds-lean4}. Methodological disclosure: the continuum certificate search, Lean~4 formalization, and statement-level verification audit were conducted with an AI-assisted multi-model workflow directed by the author; see Section~\ref{sec:lean}.}}
+\title{\textbf{A Machine-Checked Equation-of-State-Independent Kerr Lower Bound and Uniform Gap on the Moment of Inertia of Relativistic Stars}}
+\author{Serghei Iancenco\thanks{Independent researcher. Repository: \url{https://github.com/iancenco/relativistic-bounds-lean4}. Methodological disclosure: the continuum certificate search, Lean~4 formalization, and statement-level verification audit were conducted with an AI-assisted multi-model workflow directed by the author; see Section~\ref{sec:lean}.}}
 \date{November 23, 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We prove an equation-of-state-independent lower bound on the slow-rotation moment of inertia of static, spherically symmetric, horizonless isotropic relativistic stars in four-dimensional general relativity. Specifically, for any piecewise-smooth star of radius $R>0$ and gravitational mass $M>0$ obeying the Tolman--Oppenheimer--Volkoff (TOV) equations and Hartle's first-order slow-rotation equation off a finite set of interior density discontinuities, with non-increasing mean energy density ($4\pi r^3 \eps(r) \le 3 m(r)$, implied in particular by non-increasing local density $\eps$), isotropic pressure satisfying the dominant energy condition ($0 \le p \le \eps$), and a vacuum surface $p(R)=0$, the exterior Hartle moment of inertia strictly exceeds the Kerr black-hole value:
+We prove an equation-of-state-independent lower bound and uniform positive gap on the slow-rotation moment of inertia of static, spherically symmetric, horizonless isotropic relativistic stars in four-dimensional general relativity. For any piecewise-smooth star of radius $R>0$ and gravitational mass $M>0$ obeying the Tolman--Oppenheimer--Volkoff (TOV) equations and Hartle's first-order slow-rotation equation off a finite set of interior density discontinuities, with non-increasing mean energy density ($4\pi r^3 \eps(r) \le 3 m(r)$, strictly weaker than non-increasing local density $\eps$), isotropic pressure satisfying the dominant energy condition ($0 \le p \le \eps$), and a vacuum surface $p(R)=0$, the exterior Hartle moment of inertia satisfies
 \[
-  I \;>\; 4 M^3 \;=\; I_{\mathrm{Kerr}} \qquad (G = c = 1).
+  I \;>\; \frac{1001}{250}\,M^3 \;=\; 4.004\,M^3 \;>\; 4 M^3 \;=\; I_{\mathrm{Kerr}} \qquad (G = c = 1).
 \]
-No nuclear equation of state and no subluminal sound-speed assumption are required. The proof combines an auxiliary Bondi--Pontryagin compactness lemma ($m(r)/r < 51/125 = 0.408$) with an exact shifted Hartle--TOV Riccati identity along the Schwarzschild vacuum curve, discharged entirely by exact rational Bernstein positivity certificates and barrier propagation across finitely many interfaces. The complete analytical proof chain from the reduced TOV--Hartle system to $I > 4 M^3$ is machine-checked in Lean~4.36.0 + Mathlib with zero \texttt{sorry}, zero \texttt{native\_decide}, and only the three standard Lean axioms. We also provide explicit analytic non-vacuity witnesses (smooth and two-layer discontinuous), place the theorem alongside prior bounds (Hartle, Bondi, Barraco--Hamity, Karageorgis--Stalker, Andr\'easson, and Barta--Gergely), clarify why $4 M^3$ is the Kerr benchmark rather than the sharp infimum of the class, and show why the isotropy hypothesis is essential.
+In particular, $\inf \,(I/M^3) \ge 4.004 > 4$ uniformly over the entire admissible class, with no assumed nuclear equation of state and no subluminal sound-speed condition. The proof combines an auxiliary Bondi--Pontryagin compactness lemma ($m(r)/r < 51/125 = 0.408$) with an exact shifted Hartle--TOV Riccati identity along the Schwarzschild vacuum curve, discharged entirely by exact rational Bernstein positivity certificates and barrier propagation across finitely many interfaces. The complete analytical proof chain from the reduced TOV--Hartle system to both $I > 4 M^3$ and $I > (1001/250) M^3$ is machine-checked in Lean~4.36.0 + Mathlib with zero \texttt{sorry}, zero \texttt{native\_decide}, and only the three standard Lean axioms. We also provide explicit analytic non-vacuity witnesses, place the proof carefully alongside Hartle (1978, \S5.3.2) and prior compactness theorems, separate formally verified results from numerical sharpness benchmarks across both mean-density and local-density classes, and present an explicit reproducible $C^\infty$ strictly-interior DEC anisotropic star with $I/M^3 \approx 3.758 < 4$ demonstrating that isotropy is essential.
 \end{abstract}
 
 \tableofcontents
@@ -51,26 +50,32 @@ In geometrized units ($G = c = 1$), the moment of inertia of a slowly rotating K
   I_{\mathrm{Kerr}} \;=\; 4 M^3, \qquad \Ibar_{\mathrm{Kerr}} \;\equiv\; \frac{I_{\mathrm{Kerr}}}{M^3} \;=\; 4.
   \label{eq:kerr-inertia}
 \end{equation}
-Numerical studies of relativistic stellar models have long observed that the dimensionless moment of inertia $\Ibar = I/M^3$ of isotropic fluid stars lies strictly above the Kerr value $4$, approaching $\Ibar \approx 4.046$ only in the extreme incompressible Buchdahl limit $M/R \to 4/9$ \cite{ChandrasekharMiller1974,Posada2017} and remaining well above $4$ across realistic nuclear equations of state \cite{YagiYunes2013,BreuRezzolla2016}. Recently, Barta and Gergely \cite{BartaGergely2026} explicitly highlighted $\Ibar > 4$ across four tabulated nuclear equations of state in their Hartle--Thorne analysis of neutron-star spin flip-flops.
+Numerical studies of slowly rotating isotropic fluid stars consistently find $\Ibar = I/M^3 > 4$: uniform-density Schwarzschild stars approach $I/(MR^2) \to 0.7992$ and $\Ibar \to 4.046$ at the Buchdahl limit $M/R \to 4/9$ \cite{ChandrasekharMiller1974,Posada2017}, realistic nuclear equations of state lie well above $4$ \cite{YagiYunes2013,BreuRezzolla2016}, and a recent Hartle--Thorne study by Barta and Gergely \cite{BartaGergely2026} likewise notes in passing that four tabulated nuclear EOS sequences remain above the Kerr value $4$.
 
-Despite this strong numerical consensus, rigorous equation-of-state-independent lower bounds on $I/M^3$ have received far less analytical attention than compactness bounds. The classical work of Sabbadini and Hartle \cite{SabbadiniHartle1977} and Hartle \cite{Hartle1978} (especially Section~5.3.2 of \cite{Hartle1978}) established variational upper and lower bounds on the mass and moment of inertia of relativistic stars under the assumption that the equation of state is known up to a fiducial matching density $\rho_0$ and satisfies causality ($\dd p/\dd \eps \le 1$) above $\rho_0$. Those bounds are tight and astrophysically informative for neutron stars, but they depend on the low-density equation of state and do not establish a universal global inequality $\Ibar > 4$ independent of all microphysics.
+\paragraph{Relation to Hartle (1978) and Sabbadini--Hartle (1977).}
+A careful distinction within Hartle's foundational papers is essential for locating the originality of the present work. In Sabbadini and Hartle \cite{SabbadiniHartle1977} and Sections~5.1--5.2 of Hartle \cite{Hartle1978}, variational bounds on stellar mass and moment of inertia are constructed assuming that the equation of state is known below a fiducial matching density $\rho_0$ and obeys causality ($\dd p/\dd\eps \le 1$) above $\rho_0$. However, in \textbf{Section~5.3.2 of Hartle \cite{Hartle1978}} (pp.~233--234 and Fig.~8, whose caption explicitly notes that \emph{``no detailed knowledge of the equation of state has been assumed in any density regime''}), Hartle drops both the low-density EOS and causality, and uses variational extremization over locally non-increasing density profiles to identify the uniform-density Buchdahl limit ($M/R = 4/9$, $I/(MR^2) \approx 0.799$, $\Ibar \approx 4.045$) as the minimizing configuration for $I/M^3$.
 
-The purpose of this paper is to give a short, self-contained, and completely machine-checked proof of the strict Kerr lower bound $I > 4 M^3$ for piecewise-smooth, horizonless, isotropic perfect-fluid stars satisfying the dominant energy condition ($0 \le p \le \eps$) and non-increasing mean density ($4\pi r^3 \eps \le 3 m$, which is implied by non-increasing local density $\eps$). No equation of state is specified anywhere in the star, no sound-speed causality constraint is assumed, and finitely many first-order interior density discontinuities (phase transitions) as well as a finite surface density jump are permitted.
-
-\paragraph{Relation to compactness theorems.}
-Our proof requires an upper bound on the local compactness $u(r) = m(r)/r$ so that the metric factor $s(r)^2 = 1 - 2 m(r)/r$ stays strictly above $23/125$. For this purpose we prove a self-contained auxiliary lemma, $m(r)/r < 51/125 = 0.408$, using a two-piece polynomial barrier in Bondi's phase plane \cite{Bondi1964}. We emphasize that this compactness bound is an \emph{auxiliary ingredient}, not a new sharp compactness record: Buchdahl \cite{Buchdahl1959} proved $M/R \le 4/9$ for non-increasing isotropic fluids without energy conditions, Andr\'easson \cite{Andreasson2008} proved $2M/R \le 8/9$ for anisotropic spheres under $p_r + 2p_t \le \eps$, and Bondi \cite{Bondi1964} and Karageorgis--Stalker \cite{KarageorgisStalker2008} analyzed sharp compactness ceilings under $p \le w\eps$.
-
-It is worth clarifying a subtlety regarding the bound $M/R \le 3/8 = 0.375$ often associated with uniform-density stars and Barraco--Hamity \cite{BarracoHamity2002}. For a \emph{constant-density} isotropic star ($\eps = \bar{\eps}$), Buchdahl's central-pressure formula gives $p_c/\bar{\eps} = (1-\sqrt{1-2C})/(3\sqrt{1-2C}-1)$, so the dominant energy condition $p_c \le \bar{\eps}$ indeed forces $C = M/R \le 3/8 = 0.375$. For a \emph{non-uniform} monotone-density star, however, Buchdahl's comparison bounds $p_c/\bar{\eps}$ from below while DEC only constrains $p_c \le \eps_c$, and $\eps_c > \bar{\eps}$ allows $p_c/\bar{\eps} > 1$. Indeed, as verified in Section~\ref{sec:sharpness}, an explicit two-zone monotone isotropic DEC star consisting of a stiff $p = \eps$ core continuously matched to a constant-density envelope attains $M/R = 0.398800 > 3/8$ ($2M/R = 0.797600$), in agreement with Bondi's analysis \cite{Bondi1964}. Thus $3/8$ does not bound the full monotone isotropic DEC class, whereas our auxiliary polynomial barrier $m/r < 51/125 = 0.408$ sits within $2.3\%$ of this explicit realization and yields a short, zero-floating-point proof in Lean~4.
-
-\paragraph{Scope, sharpness, and formalization honesty.}
-We highlight three caveats up front:
+Hartle's \S5.3.2 analysis is variational and partly numerical rather than a closed-form constructive differential proof, and assumes local density monotonicity without the dominant energy condition (DEC). The contribution of the present paper is therefore \emph{not} the discovery of the physical expectation $\Ibar > 4$, but rather:
 \begin{enumerate}
-  \item \emph{Reduced-ODE input to Lean.} The Lean~4 development formalizes the theorem starting from the reduced TOV equations, Hartle's Riccati equation for $Z = r s \wbar'/\wbar$, interface continuity conditions, and the matched surface inertia formula $I = R^3 Z(R)/(6 s(R) + 2 Z(R))$. The derivation of these reduced equations from the four-dimensional Einstein equations is standard and is given in Section~\ref{sec:setup}, but is not formalized from scratch in Lean.
-  \item \emph{Non-vacuity.} Explicit smooth and two-layer discontinuous physical stars satisfying every Lean hypothesis are constructed and proved analytically in Section~\ref{sec:nonvacuity}, but formalizing an existence proof for Hartle's ODE inside Lean~4 + Mathlib remains future work.
-  \item \emph{Sharpness and hypotheses.} The constant $4$ is the Kerr benchmark rather than the sharp infimum of the monotone DEC isotropic class (Section~\ref{sec:sharpness}): uniform DEC stars reach $\Ibar \approx 4.6549$ at $C=3/8$ and two-zone monotone DEC stars reach $\Ibar \approx 4.2855$. Relaxing isotropy allows strictly-DEC stars with $\Ibar < 4$, showing that isotropy is essential. Dropping DEC entirely while keeping monotone isotropic fluids (the full Buchdahl class, where uniform stars approach $\Ibar \approx 4.046$) remains an open problem.
+  \item a \textbf{zero-numerical, constructive differential-barrier proof} establishing both $I > 4 M^3$ and the \textbf{uniform positive gap} $I > (1001/250) M^3 = 4.004 M^3$ (so $\inf \Ibar \ge 4.004 > 4$);
+  \item validity under the \textbf{strictly weaker non-increasing mean-density hypothesis} $4\pi r^3 \eps(r) \le 3 m(r)$ (permitting upward local density jumps that violate local monotonicity $\eps' \le 0$) together with isotropic DEC ($0 \le p \le \eps$) and finitely many interior interfaces; and
+  \item a \textbf{complete Lean~4.36.0 + Mathlib machine-checked formalization} with exact rational Bernstein certificates and zero floating-point arithmetic.
 \end{enumerate}
 
-\section{Physical Setup, Interface Matching, and Bridge to Formalization}
+\paragraph{Relation to compactness theorems.}
+Our inertia barrier requires the metric factor $s(r)^2 = 1 - 2 m(r)/r$ to remain strictly above $23/125$. To keep the proof self-contained, we prove an \emph{auxiliary} compactness lemma, $m(r)/r < 51/125 = 0.408$, via a two-piece polynomial barrier in Bondi's $(u,v)$ phase plane \cite{Bondi1964}. This is an auxiliary tool rather than a new sharp compactness record; classical and sharp compactness theorems include Buchdahl \cite{Buchdahl1959} ($M/R \le 4/9$ for monotone isotropic fluids), Bondi \cite{Bondi1964}, Barraco and Hamity \cite{BarracoHamity2002}, Karageorgis and Stalker \cite{KarageorgisStalker2008}, and Andr\'easson \cite{Andreasson2008} ($2M/R \le 8/9$ for anisotropic spheres under $p_r + 2 p_t \le \eps$).
+
+We note a useful quantitative clarification regarding $M/R \le 3/8 = 0.375$. For a \emph{uniform-density} isotropic star ($\eps = \bar{\eps}$), Buchdahl's central-pressure formula gives $p_c/\bar{\eps} = (1-\sqrt{1-2C})/(3\sqrt{1-2C}-1)$, so DEC ($p_c \le \bar{\eps}$) forces $C = M/R \le 3/8 = 0.375$. For a \emph{non-uniform} monotone-density star, however, $\eps_c > \bar{\eps}$ allows $p_c/\bar{\eps} > 1$ while still respecting $p_c \le \eps_c$. As verified in Section~\ref{sec:sharpness}, an explicit two-zone locally monotone isotropic DEC star reaches $M/R = 0.398800 > 3/8$, and within the wider mean-density class ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars reach $M/R = 0.405568$ (matching Bondi's relaxed ceiling $0.405573$). Our auxiliary polynomial wall $51/125 = 0.408$ therefore lies within $0.0024$ ($0.6\%$) of the true supremum of the mean-density DEC class.
+
+\paragraph{Separation of formal vs.\ numerical content and caveats.}
+To avoid any ambiguity between formally verified results and supplementary diagnostics:
+\begin{itemize}
+  \item \emph{Formally verified in Lean~4:} Lemma~\ref{lem:mean-density} (local $\Rightarrow$ mean density across jumps), Proposition~\ref{prop:partA} (exact shifted Riccati identity), Proposition~\ref{prop:partB} ($m/r < 51/125$), Theorem~\ref{thm:kerr-inertia} ($I > 4 M^3$), and Theorem~\ref{thm:uniform-gap} ($I > (1001/250) M^3 = 4.004 M^3$), starting from the reduced TOV--Hartle ODEs, interface continuity, and matched surface inertia formula.
+  \item \emph{Proved analytically outside Lean:} The standard textbook derivation of the reduced ODEs from the 4D Einstein equations (Section~\ref{sec:setup}, including the global positivity $\wbar > 0$ in Lemma~\ref{lem:wbar-pos}) and the explicit smooth and two-layer non-vacuity witnesses (Section~\ref{sec:nonvacuity}). Formalizing ODE existence for Hartle's equation inside Mathlib to prove non-vacuity in Lean remains future work.
+  \item \emph{Numerical benchmarks and extensions (Section~\ref{sec:sharpness}, not formalized in Lean):} Sharpness comparisons across uniform, locally monotone, and mean-density DEC classes; the beyond-DEC numerical cutoff $w_* \approx 1.1556$; and explicit anisotropic full-DEC counterexamples with $\Ibar < 4$. All numerical figures in Section~\ref{sec:sharpness} are reproduced by the standalone script \texttt{scripts/verify\_paper\_benchmarks.py}.
+\end{itemize}
+
+\section{Physical Setup, Positivity of \texorpdfstring{$\wbar$}{wbar}, and Formalized Hypotheses}
 \label{sec:setup}
 
 \subsection{Derivation of the Reduced TOV--Hartle System}
@@ -81,21 +86,21 @@ In geometrized units ($G = c = 1$), consider a static, spherically symmetric, ho
   \qquad s(r) \;\equiv\; \sqrt{1 - \frac{2 m(r)}{r}} \;>\; 0,
   \label{eq:metric}
 \end{equation}
-populated by an isotropic perfect fluid with energy density $\eps(r)$ and pressure $p(r)$ supported on $[0, R]$, with vacuum exterior ($r > R$) and surface boundary condition $p(R) = 0$. The mixed $tt$ and $rr$ Einstein equations together with radial stress-energy conservation $\nabla_\mu T^{\mu}{}_{r} = 0$ give the standard TOV system \cite{Hartle1967}:
+populated by an isotropic perfect fluid with energy density $\eps(r)$ and pressure $p(r)$ supported on $[0, R]$, with vacuum exterior ($r > R$) and surface boundary condition $p(R) = 0$. The mixed $tt$ and $rr$ Einstein equations and radial stress-energy conservation yield the TOV system \cite{Hartle1967}:
 \begin{equation}
   m' \;=\; 4\pi r^2 \eps, \qquad
   \frac{N'}{N} \;=\; \frac{m + 4\pi r^3 p}{r^2 s^2}, \qquad
   p' \;=\; -(\eps + p)\frac{m + 4\pi r^3 p}{r^2 s^2}.
   \label{eq:tov}
 \end{equation}
-Introduce the dimensionless Bondi variables \cite{Bondi1964}
+In Bondi's dimensionless variables \cite{Bondi1964}
 \begin{equation}
   u(r) \;\equiv\; \frac{m(r)}{r}, \qquad
   \pi_e(r) \;\equiv\; 4\pi r^2 \eps(r), \qquad
   \pi_p(r) \;\equiv\; 4\pi r^2 p(r),
   \label{eq:bondi-vars}
 \end{equation}
-so that $s^2 = 1 - 2u$ and \eqref{eq:tov} takes the logarithmic-radius form
+we have $s^2 = 1 - 2u$ and
 \begin{equation}
   r u' \;=\; \pi_e - u, \qquad
   r s' \;=\; \frac{u - \pi_e}{s}, \qquad
@@ -103,22 +108,36 @@ so that $s^2 = 1 - 2u$ and \eqref{eq:tov} takes the logarithmic-radius form
   \label{eq:tov-bondi}
 \end{equation}
 
-Under rigid slow rotation at uniform angular velocity $\Omega$ to first order in $\Omega$, the metric acquires a single off-diagonal frame-dragging component $g_{t\phi} = -\omega(r) r^2 \sin^2\theta$ \cite{Hartle1967}. Defining the relative angular velocity $\wbar(r) \equiv \Omega - \omega(r)$ and the auxiliary function $j(r) \equiv s(r)/N(r)$, the $t\phi$ Einstein equation is the linear second-order ODE
+Under rigid slow rotation at uniform angular velocity $\Omega$ to $O(\Omega)$, the metric acquires $g_{t\phi} = -\omega(r) r^2 \sin^2\theta$ \cite{Hartle1967}. Putting $\wbar(r) \equiv \Omega - \omega(r)$ and $j(r) \equiv s(r)/N(r) > 0$, the $t\phi$ Einstein equation is
 \begin{equation}
   \frac{\dd}{\dd r}\!\left(r^4 j\,\wbar'\right) + 4 r^3 j'\,\wbar \;=\; 0,
   \label{eq:hartle-2nd}
 \end{equation}
-where from \eqref{eq:tov} the logarithmic derivative of $j$ obeys
+where \eqref{eq:tov} implies
 \begin{equation}
-  \frac{r j'}{j} \;=\; \frac{r s'}{s} - \frac{r N'}{N} \;=\; \frac{u - \pi_e}{s^2} - \frac{u + \pi_p}{s^2} \;=\; -\frac{\pi_e + \pi_p}{s^2}.
+  \frac{r j'}{j} \;=\; \frac{r s'}{s} - \frac{r N'}{N} \;=\; -\frac{\pi_e + \pi_p}{s^2} \;\le\; 0.
   \label{eq:j-deriv}
 \end{equation}
-Where $\wbar(r) > 0$, define $y(r) \equiv r \wbar'(r)/\wbar(r)$ and the Hartle Riccati variable
+
+\begin{lemma}[Global positivity and pole-freeness of the Hartle Riccati variable]
+\label{lem:wbar-pos}
+Let $\wbar$ be a regular solution of \eqref{eq:hartle-2nd} on $[0, R]$ with $\wbar(0) > 0$, $\lim_{r\to 0^+} r^4 j(r) \wbar'(r) = 0$, and continuous $\wbar$ and $r^4 j \wbar'$ across finitely many interior density jumps $\mathcal{J} \subset (0, R]$. Assume $\eps \ge 0$ and $p \ge 0$ on $(0, R]$. Then $\wbar'(r) \ge 0$ and $\wbar(r) \ge \wbar(0) > 0$ for all $r \in [0, R]$.
+\end{lemma}
+
+\begin{proof}
+By \eqref{eq:j-deriv}, $j'(r) = -j(r)(\pi_e + \pi_p)/(r s^2) \le 0$ on $(0, R] \setminus \mathcal{J}$. Suppose for contradiction that $\wbar$ vanishes on $(0, R]$, and let $r_1 \equiv \inf\{r \in (0, R] : \wbar(r) \le 0\} > 0$. Then $\wbar > 0$ on $[0, r_1)$ and $\wbar(r_1) = 0$ by continuity. Integrating \eqref{eq:hartle-2nd} over each jump-free subinterval of $(0, r)$ and summing (using continuity of $r^4 j \wbar'$ across $\mathcal{J}$ and $r^4 j \wbar' \to 0$ at $0^+$) gives
+\[
+  r^4 j(r)\,\wbar'(r) \;=\; \int_0^r (-4 t^3 j'(t))\,\wbar(t)\,\dd t \;\ge\; 0 \qquad \forall\, r \in (0, r_1).
+\]
+Hence $\wbar' \ge 0$ off $\mathcal{J}$ on $(0, r_1)$, so $\wbar(r_1) \ge \wbar(0) > 0$, a contradiction. Therefore $\wbar(r) \ge \wbar(0) > 0$ and $\wbar'(r) \ge 0$ on all of $[0, R]$.
+\end{proof}
+
+By Lemma~\ref{lem:wbar-pos}, the logarithmic derivative $y(r) \equiv r \wbar'(r)/\wbar(r)$ and the Hartle Riccati variable
 \begin{equation}
-  Z(r) \;\equiv\; s(r)\,y(r) \;=\; \frac{r s(r)\,\wbar'(r)}{\wbar(r)}.
+  Z(r) \;\equiv\; s(r)\,y(r) \;=\; \frac{r s(r)\,\wbar'(r)}{\wbar(r)}
   \label{eq:Z-def}
 \end{equation}
-Expanding \eqref{eq:hartle-2nd} yields $r y' = -y^2 - 3y - (y+4)(r j'/j) = -y^2 - 3y + (\pi_e + \pi_p)(y+4)/s^2$. Differentiating $Z = s y$ via \eqref{eq:tov-bondi} gives Hartle's slow-rotation Riccati equation:
+are globally well-defined and pole-free on $(0, R]$. Expanding \eqref{eq:hartle-2nd} off $\mathcal{J}$ gives $r y' = -y^2 - 3y + (\pi_e + \pi_p)(y+4)/s^2$, and differentiating $Z = s y$ via \eqref{eq:tov-bondi} yields Hartle's Riccati equation:
 \begin{equation}
   r Z' \;=\; \frac{(u + \pi_p) Z}{s^2} - \frac{Z^2}{s} - 3 Z + \frac{4(\pi_e + \pi_p)}{s}.
   \label{eq:hartle-Z}
@@ -126,75 +145,65 @@ Expanding \eqref{eq:hartle-2nd} yields $r y' = -y^2 - 3y - (y+4)(r j'/j) = -y^2 
 
 \subsection{Exterior Matching and Interface Junction Conditions}
 
-In the exterior vacuum ($r > R$), $j(r) = 1$ (normalizing $N(r) = s(r)$ at infinity) and \eqref{eq:hartle-2nd} integrates immediately to
-\begin{equation}
-  \wbar(r) \;=\; \Omega - \frac{2 J}{r^3}, \qquad J \;=\; I \Omega,
-  \label{eq:vacuum-wbar}
-\end{equation}
-with angular momentum $J$ and moment of inertia $I$. Continuity of $\wbar$ and $\wbar'$ at $r = R$ (since $j$ is continuous across the vacuum surface) gives
-\begin{equation}
-  y(R) \;=\; \frac{R \wbar'(R)}{\wbar(R)} \;=\; \frac{6 I}{R^3 - 2 I}, \qquad
-  Z(R) \;=\; s(R)\,y(R) \;=\; \frac{6 s(R)\,I}{R^3 - 2 I}.
-  \label{eq:Z-surface}
-\end{equation}
-Solving \eqref{eq:Z-surface} for $I$ yields the exterior moment-of-inertia formula
+In the exterior vacuum ($r > R$), $j(r) = 1$ and \eqref{eq:hartle-2nd} integrates to $\wbar(r) = \Omega - 2 J/r^3$ with $J = I \Omega$. Continuity of $\wbar$ and $\wbar'$ at $r = R$ gives $Z(R) = 6 s(R) I / (R^3 - 2 I)$, hence
 \begin{equation}
   I \;=\; \frac{R^3 Z(R)}{6 s(R) + 2 Z(R)}.
   \label{eq:I-formula}
 \end{equation}
-Setting $I = \Ibar_0 M^3$ with $M = m(R)$ and $u_R = M/R = (1 - s(R)^2)/2$ in \eqref{eq:Z-surface} defines the \emph{Schwarzschild vacuum curve} at fixed dimensionless inertia $\Ibar_0$:
+Setting $I = \Ibar_0 M^3$ with $M = m(R)$ and $u_R = M/R = (1 - s(R)^2)/2$ defines the \emph{Schwarzschild vacuum curve} at fixed dimensionless inertia $\Ibar_0$:
 \begin{equation}
   Z_c(\Ibar_0, s) \;\equiv\; \frac{3 \Ibar_0\,s\,(1 - s^2)^3}{4 - \Ibar_0\,(1 - s^2)^3}.
   \label{eq:Zc-def}
 \end{equation}
-At $\Ibar_0 = 4$ (the Kerr value), $4 - 4(1 - s^2)^3 = 4(1 - 8 u^3) > 0$ for every $s \in (0, 1]$, and whenever $Z(R) > Z_c(4, s(R)) \ge 0$ we immediately have $6 s(R) + 2 Z(R) > 0$ and $I > 4 M^3$.
+Across any finite set $\mathcal{J} \subset (0, R]$ of ordinary first-order density discontinuities (no singular surface layer), the Israel--Darmois junction conditions enforce continuity of $m, p, N, s, \wbar,$ and $r^4 j \wbar'$, hence continuity of $Z = s(r^4 j \wbar')/(r^3 j \wbar)$ on $(0, R]$, while \eqref{eq:tov} and \eqref{eq:hartle-Z} hold pointwise on $(0, R] \setminus \mathcal{J}$.
 
-\paragraph{Interior density discontinuities (first-order phase transitions).}
-Suppose the star has finitely many interface radii $r_k \in \mathcal{J} \subset (0, R]$ where $\eps$ jumps downward (including optionally the surface $R$ when $\eps(R^-) > 0$). By the Israel--Darmois junction conditions for an ordinary perfect-fluid interface with no singular surface layer, $m$, $p$, $N$, $s$, $\wbar$, and the angular-momentum flux $r^4 j \wbar'$ are all continuous across every $r_k \in \mathcal{J}$. Consequently,
-\[
-  Z \;=\; \frac{s \cdot (r^4 j \wbar')}{r^3 j \wbar}
-\]
-is continuous on $(0, R]$ even though $m'$, $p'$, and $Z'$ suffer finite jumps at $r_k \in \mathcal{J}$. On $(0, R] \setminus \mathcal{J}$, the ODEs \eqref{eq:tov} and \eqref{eq:hartle-Z} hold pointwise.
+\subsection{Admissible Star Class and Mapping to Lean~4}
 
-\subsection{Formalized Star Class and Mapping to Lean~4}
+\begin{definition}[Admissible piecewise-regular isotropic DEC star]
+\label{def:star}
+A tuple $(R, m, \eps, p, Z, \mathcal{J})$ with $R > 0$, $m, \eps, p, Z : \R \to \R$, and a finite set $\mathcal{J} \subset \R$ is an \emph{admissible piecewise-regular isotropic DEC star} if:
+\begin{enumerate}
+  \item[\textbf{(H1)}] $m(0) = 0$, $M \equiv m(R) > 0$, and $s(r) \equiv \sqrt{1 - 2 m(r)/r} > 0$ for all $r \in (0, R]$ (horizonless);
+  \item[\textbf{(H2)}] $m, p, Z$ are continuous on $(0, R]$, and the TOV and Hartle ODEs \eqref{eq:tov} and \eqref{eq:hartle-Z} hold pointwise for all $r \in (0, R] \setminus \mathcal{J}$;
+  \item[\textbf{(H3)}] $p(R) = 0$ (vacuum surface);
+  \item[\textbf{(H4)}] $Z(0) = 0$, and $\lim_{r\to 0^+} m(r)/r = 0$, $\lim_{r\to 0^+} 4\pi r^2 p(r) = 0$, $\lim_{r\to 0^+} Z(r) = 0$ (weighted central regularity);
+  \item[\textbf{(H5)}] $0 \le p(r) \le \eps(r)$ for all $r \in (0, R]$ (isotropic dominant energy condition).
+\end{enumerate}
+We say the star has \emph{non-increasing mean density} if in addition
+\begin{enumerate}
+  \item[\textbf{(H6)}] $4\pi r^3 \eps(r) \le 3 m(r)$ for all $r \in (0, R]$.
+\end{enumerate}
+\end{definition}
 
-Table~\ref{tab:bridge} records the exact correspondence between the physical assumptions above and the Lean~4 structures \texttt{PiecewiseRegularIsotropicDECStar} and \texttt{MonotoneIsotropicDECStar} in \texttt{NaturalMechanics/T4A18\_KerrInertia.lean}.
+Table~\ref{tab:bridge} records the exact correspondence between Definition~\ref{def:star} and the Lean~4 structures in \texttt{NaturalMechanics/T4A18\_KerrInertia.lean}.
 
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{@{}p{0.34\textwidth}p{0.28\textwidth}p{0.32\textwidth}@{}}
+\begin{tabular}{@{}p{0.10\textwidth}p{0.46\textwidth}p{0.38\textwidth}@{}}
 \toprule
-Physical assumption & Mathematical expression & Lean~4 field / hypothesis \\
+Label & Mathematical hypothesis & Lean~4 field / hypothesis \\
 \midrule
-Positive radius and mass & $R > 0$, $m(0)=0$, $M=m(R)>0$ & \texttt{R\_pos}, \texttt{m\_zero}, \texttt{M\_pos} \\
-Horizonless interior & $s(r) = \sqrt{1 - 2 m(r)/r} > 0$ on $(0, R]$ & \texttt{s\_pos} \\
-Finite interface set & $\mathcal{J} \subset \R$ finite & \texttt{jumps : Finset $\R$} \\
-Israel--Darmois matching & $m, p, Z$ continuous on $(0, R]$ & \texttt{continuousOn\_m}, \texttt{\_p}, \texttt{\_Z} \\
-TOV \& Hartle ODEs off $\mathcal{J}$ & Eqs.~\eqref{eq:tov} and \eqref{eq:hartle-Z} on $(0,R]\setminus\mathcal{J}$ & \texttt{hasDerivAt\_m}, \texttt{\_p}, \texttt{\_Z} \\
-Vacuum surface & $p(R) = 0$ & \texttt{p\_surface} \\
-Weighted central limits & $m/r \to 0$, $4\pi r^2 p \to 0$, $Z \to 0$ as $r \to 0^+$ & \texttt{center\_u}, \texttt{center\_p}, \texttt{center\_Z}, \texttt{Z\_zero} \\
-Isotropic DEC & $0 \le p(r) \le \eps(r)$ on $(0, R]$ & \texttt{p\_nonneg}, \texttt{p\_le\_$\eps$} \\
-Non-increasing mean density & $4\pi r^3 \eps(r) \le 3 m(r)$ on $(0, R]$ & \texttt{mean\_density} \\
-Non-increasing local density (stronger) & $\eps$ antitone on $(0, R]$ & \texttt{AntitoneOn S.$\eps$ (Ioc 0 S.R)} \\
+(H1) & $R > 0$, $m(0)=0$, $M=m(R)>0$, $s(r) > 0$ on $(0, R]$ & \texttt{R\_pos}, \texttt{m\_zero}, \texttt{M\_pos}, \texttt{s\_pos} \\
+(H2) & $\mathcal{J}$ finite; $m,p,Z$ continuous on $(0,R]$; ODEs off $\mathcal{J}$ & \texttt{jumps}, \texttt{continuousOn\_*}, \texttt{hasDerivAt\_*} \\
+(H3) & Vacuum surface $p(R) = 0$ & \texttt{p\_surface} \\
+(H4) & $Z(0)=0$; $m/r, 4\pi r^2 p, Z \to 0$ as $r \to 0^+$ & \texttt{Z\_zero}, \texttt{center\_u}, \texttt{center\_p}, \texttt{center\_Z} \\
+(H5) & Isotropic DEC $0 \le p(r) \le \eps(r)$ on $(0, R]$ & \texttt{p\_nonneg}, \texttt{p\_le\_$\eps$} \\
+(H6) & Non-increasing mean density $4\pi r^3 \eps(r) \le 3 m(r)$ & \texttt{mean\_density} (\texttt{MonotoneIsotropicDECStar}) \\
+Stronger & Non-increasing local density $\eps$ on $(0, R]$ & \texttt{AntitoneOn S.$\eps$ (Ioc 0 S.R)} \\
 \bottomrule
 \end{tabular}
-\caption{Exact correspondence between the physical model and the Lean~4 star structures. Note that the reduced ODEs and weighted central limits are taken as inputs to the formal proof; full $C^2$ regularity at $r=0$ is strictly stronger than the weighted central limits.}
+\caption{Exact mapping between Definition~\ref{def:star} and the Lean~4 structures. Full $C^2$ metric regularity at $r=0$ is strictly stronger than the weighted central limits (H4).}
 \label{tab:bridge}
 \end{table}
 
 \begin{lemma}[One-way monotonicity implication across jumps]
 \label{lem:mean-density}
-Let $m, \eps : \R \to \R$ satisfy $m(0) = 0$, $\lim_{r\to 0^+} m(r)/r = 0$, $m$ continuous on $(0, R]$, and $m'(r) = 4\pi r^2 \eps(r)$ for all $r \in (0, R] \setminus \mathcal{J}$ with $\mathcal{J}$ finite. If $\eps$ is non-increasing on $(0, R]$, then
-\begin{equation}
-  4\pi r^3 \eps(r) \;\le\; 3 m(r) \qquad \forall\, r \in (0, R],
-  \label{eq:mean-density}
-\end{equation}
-equivalently $\pi_e(r) \le 3 u(r)$ and $m(r)/r^3$ is non-increasing on $(0, R]$. The converse is false in general: a non-increasing mean density does not imply that local density $\eps$ is non-increasing.
+Let $(R, m, \eps, p, Z, \mathcal{J})$ satisfy (H1)--(H4). If $\eps$ is non-increasing on $(0, R]$, then (H6) holds: $4\pi r^3 \eps(r) \le 3 m(r)$ for all $r \in (0, R]$, equivalently $\pi_e(r) \le 3 u(r)$ and $m(r)/r^3$ is non-increasing on $(0, R]$. The converse is false: (H6) permits upward local density jumps as long as $\eps(r)$ does not exceed the enclosed mean density $3 m(r)/(4\pi r^3)$.
 \end{lemma}
 
 \begin{proof}
-Fix $r \in (0, R]$ and set $g(\rho) \equiv m(\rho) - \frac{4\pi}{3}\rho^3 \eps(r)$ on $[0, r]$. Since $m(\rho) = \rho (m(\rho)/\rho) \to 0 = m(0)$ as $\rho \to 0^+$, $g$ is continuous on $[0, r]$. For $\rho \in (0, r) \setminus \mathcal{J}$, $g'(\rho) = 4\pi \rho^2 (\eps(\rho) - \eps(r)) \ge 0$ because $\eps$ is non-increasing. By induction on the finite exceptional set $\mathcal{J} \cap (0, r)$, $g$ is non-decreasing on $[0, r]$, hence $g(r) \ge g(0) = 0$, giving \eqref{eq:mean-density}. For the failure of the converse, consider any smooth positive perturbation adding a small local density bump near an outer radius while keeping $\eps(r)$ strictly below the interior average $3 m(r)/(4\pi r^3)$.
+Fix $r \in (0, R]$ and put $g(\rho) \equiv m(\rho) - \frac{4\pi}{3}\rho^3 \eps(r)$ on $[0, r]$. Since $m(\rho) = \rho (m(\rho)/\rho) \to 0 = m(0)$ as $\rho \to 0^+$, $g$ is continuous on $[0, r]$. For $\rho \in (0, r) \setminus \mathcal{J}$, $g'(\rho) = 4\pi \rho^2 (\eps(\rho) - \eps(r)) \ge 0$. Inducting on the finite set $\mathcal{J} \cap (0, r)$ shows $g$ is non-decreasing on $[0, r]$, so $g(r) \ge g(0) = 0$. The failure of the converse is exhibited explicitly by the bang--bang mean-density stars of Section~\ref{sec:sharpness}, where $\eps$ jumps upward by a factor $\approx 2.1$--$2.4$ at $r_{\mathrm{sw}}$ while $4\pi r^3 \eps(r) \le 3 m(r)$ holds everywhere.
 \end{proof}
 
 \section{Self-Contained Continuum Proof}
@@ -202,7 +211,7 @@ Fix $r \in (0, R]$ and set $g(\rho) \equiv m(\rho) - \frac{4\pi}{3}\rho^3 \eps(r
 
 \subsection{Part A: Exact Shifted Hartle--TOV Riccati Identity}
 
-For any real shift parameter $\alpha \in \R$ and reference inertia $\Ibar_0 \in \R$, define the shifted Hartle variable and its residual relative to the vacuum curve \eqref{eq:Zc-def}:
+For any real shift parameter $\alpha \in \R$ and reference inertia $\Ibar_0 \in \R$, set
 \begin{equation}
   W_\alpha(r) \;\equiv\; Z(r) - \frac{2\alpha\,\pi_p(r)}{s(r)}, \qquad
   D_{\alpha,\Ibar_0}(r) \;\equiv\; W_\alpha(r) - Z_c(\Ibar_0, s(r)).
@@ -216,7 +225,7 @@ Off the interface set $\mathcal{J}$, wherever $s > 0$ and $4 - \Ibar_0(1 - s^2)^
   r D' \;=\; L\,D \;+\; c_e(\alpha, \Ibar_0, s)\,\pi_e \;+\; c_p(\alpha, \Ibar_0, s)\,\pi_p \;+\; c_{pp}(\alpha, s)\,\pi_p^2,
   \label{eq:partA}
 \end{equation}
-where the linear coefficient and matter coefficients are
+where
 \begin{align}
   L &\;=\; -\frac{W_\alpha + Z_c(\Ibar_0, s)}{s} + \frac{u + (1 - 4\alpha)\pi_p}{s^2} - 3, \label{eq:L-def} \\
   c_e(\alpha, \Ibar_0, s) &\;=\; \frac{N_e(\alpha, \Ibar_0, s^2)}{s^3\bigl(4 - \Ibar_0(1 - s^2)^3\bigr)^2}, \qquad
@@ -235,22 +244,18 @@ with explicit polynomials in $t = s^2$:
     \Ibar_0\alpha(t-1)^3(t-3) - \Ibar_0 t(t-1)^3 + 52\alpha t - 12\alpha - 16 t
   \Bigr]. \label{eq:NumP}
 \end{align}
-In particular, along the vacuum curve $D = 0$, both the matter-free constant term and the $\pi_e \pi_p$ cross term vanish identically for all $(\alpha, \Ibar_0)$.
+In particular, along the vacuum curve $D = 0$, both the matter-free term and the $\pi_e \pi_p$ cross term vanish identically for all $(\alpha, \Ibar_0)$.
 \end{proposition}
 
 \begin{proof}
-Substitute $Z = W_\alpha + 2\alpha \pi_p/s$ and $u = (1 - s^2)/2$ into
-\[
-  r D' \;=\; r Z' - 2\alpha\left(\frac{r \pi_p'}{s} - \frac{\pi_p\,r s'}{s^2}\right) - \frac{\partial Z_c}{\partial s}(\Ibar_0, s)\,r s',
-\]
-using \eqref{eq:tov-bondi} and \eqref{eq:hartle-Z}. Grouping the terms proportional to $D = W_\alpha - Z_c$ via $W_\alpha^2 - Z_c^2 = (W_\alpha + Z_c) D$ isolates $L\,D$. The vacuum curve $Z_c$ is by construction an exact solution of the vacuum ($\pi_e = \pi_p = 0$) Hartle equation, so the matter-free term cancels identically. The coefficient of $\pi_e \pi_p$ from $-2\alpha(r\pi_p'/s - \pi_p r s'/s^2)$ is $2\alpha(1/s^3 - 1/s^3) = 0$, so the $\pi_e \pi_p$ cross term cancels identically as well. Collecting the remaining terms over the common denominator $s^3(4 - \Ibar_0(1-s^2)^3)^2$ yields \eqref{eq:ce-cp-def}--\eqref{eq:NumP} by direct polynomial algebra (verified symbolically in Lean by \texttt{field\_simp; ring} in \texttt{partA}).
+Substitute $Z = W_\alpha + 2\alpha \pi_p/s$ and $u = (1 - s^2)/2$ into $r D' = r Z' - 2\alpha(r \pi_p'/s - \pi_p r s'/s^2) - (\partial_s Z_c)\,r s'$ using \eqref{eq:tov-bondi} and \eqref{eq:hartle-Z}, and group terms via $W_\alpha^2 - Z_c^2 = (W_\alpha + Z_c) D$. Since $Z_c$ solves the vacuum Hartle equation, the matter-free term vanishes identically; the $\pi_e \pi_p$ contributions from $-2\alpha r \pi_p'/s$ and $+2\alpha \pi_p r s'/s^2$ cancel as $2\alpha(1/s^3 - 1/s^3) = 0$. Collecting the remaining terms over $s^3(4 - \Ibar_0(1-s^2)^3)^2$ gives \eqref{eq:ce-cp-def}--\eqref{eq:NumP}.
 \end{proof}
 
 \subsection{Part B: Auxiliary Bondi--Pontryagin Compactness Lemma}
 
 \begin{proposition}[Auxiliary compactness lemma]
 \label{prop:partB}
-Every star in \texttt{MonotoneIsotropicDECStar} satisfies
+Every star satisfying Definition~\ref{def:star} together with (H6) obeys
 \begin{equation}
   u(r) \;=\; \frac{m(r)}{r} \;<\; \frac{51}{125} \;=\; 0.408 \qquad \text{and} \qquad
   s(r)^2 \;=\; 1 - 2 u(r) \;>\; \frac{23}{125} \;=\; 0.184
@@ -260,96 +265,108 @@ for all $r \in (0, R]$.
 \end{proposition}
 
 \begin{proof}
-First, since $4\pi r^3 \eps \le 3 m$, the quotient $m(r)/r^3$ has non-positive derivative off $\mathcal{J}$ and is continuous on $(0, R]$, hence non-increasing on $(0, R]$. Because $m(R) > 0$, we obtain $m(r) > 0$ and $u(r) > 0$ on $(0, R]$.
+Since $4\pi r^3 \eps \le 3 m$, $m(r)/r^3$ has non-positive derivative off $\mathcal{J}$ and is continuous on $(0, R]$, hence non-increasing on $(0, R]$; with $m(R) > 0$, this forces $m(r) > 0$ and $u(r) > 0$ on $(0, R]$.
 
-In Bondi's $(u, v)$ plane with $v \equiv \pi_p = 4\pi r^2 p$, the conditions $0 \le p \le \eps$ and $4\pi r^3 \eps \le 3 m$ restrict the density control $e \equiv \pi_e$ to the compact interval $e \in [v, 3u]$ at every $r \in (0, R]$. Define the continuous two-piece polynomial barrier $B(u)$ joined at $u_j = 49/200$:
+Put $v \equiv \pi_p$ and $e \equiv \pi_e$. Hypotheses (H5) and (H6) restrict $e \in [v, 3u]$ everywhere on $(0, R]$. Define the continuous two-piece polynomial barrier $B(u)$ joined at $u_j = 49/200$:
 \begin{align}
   B_1(u) &\;=\; u\!\left(\frac{61}{20} - \frac{103}{20} u + \frac{4}{5} u^2 - \frac{103}{4} u^3\right),
   \qquad u \in \left[0, \frac{49}{200}\right], \label{eq:B1}\\
   B_2(u) &\;=\; B_1\!\left(\frac{49}{200}\right) + d\!\left(-\frac{23}{20} - \frac{133}{20} d + \frac{13}{10} d^2\right),
   \qquad d = u - \frac{49}{200},\quad u \in \left[\frac{49}{200}, \frac{51}{125}\right], \label{eq:B2}
 \end{align}
-extended constantly by $B_2(51/125)$ for $u > 51/125$. Direct evaluation gives $B_1(49/200) = B_2(49/200)$, $B_1'(49/200) \approx -0.8442 > -1.15 = B_2'(49/200)$ (strict convex corner), and $B_2(51/125) < 0$.
+extended constantly by $B_2(51/125)$ for $u > 51/125$. Direct rational arithmetic checks $B_1(49/200) = B_2(49/200)$, $B_1'(49/200) \approx -0.8442 > -1.15 = B_2'(49/200)$ (strict convex corner), and $B_2(51/125) < 0$.
 
-Along any smooth segment $r \notin \mathcal{J}$ where $v = B_i(u)$, \eqref{eq:tov-bondi} gives
+Off $\mathcal{J}$, \eqref{eq:tov-bondi} gives
 \begin{equation}
-  r(v - B_i(u))' \;=\; \frac{1}{1 - 2u}\Bigl[(1 - 2u)\bigl(2v - B_i'(u)(e - u)\bigr) - (e + v)(u + v)\Bigr],
+  r(v - B_i(u))' \;=\; \frac{1}{1 - 2u}\Bigl[(1 - 2u)\bigl(2v - B_i'(u)(e - u)\bigr) - (e + v)(u + v)\Bigr].
   \label{eq:barrier-deriv}
 \end{equation}
-whose numerator is \emph{affine in $e \in [v, 3u]$}. Hence it is strictly negative for all $e \in [v, 3u]$ whenever both endpoint residuals are strictly negative:
+Because the bracket is \emph{affine in $e \in [v, 3u]$}, it is strictly negative for all $e \in [v, 3u]$ whenever both endpoint residuals at $v = B_i(u)$ are strictly negative:
 \begin{align*}
   F_{\mathrm{core}}(B_i; u) &\;\equiv\; (1 - 2u)\bigl(2 B_i + (u - B_i) B_i'\bigr) - 2 B_i(u + B_i) \;<\; 0, \\
   F_{\mathrm{const}}(B_i; u) &\;\equiv\; (1 - 2u)\bigl(2 B_i - 2 u B_i'\bigr) - (3u + B_i)(u + B_i) \;<\; 0.
 \end{align*}
-Factoring out powers of $u$ on piece~1 gives $F_{\mathrm{core}}(B_1; u) = -u P_{1c}(u)$, $F_{\mathrm{const}}(B_1; u) = -u^2 P_{1k}(u)$, $F_{\mathrm{core}}(B_2; u) = -P_{2c}(u)$, $F_{\mathrm{const}}(B_2; u) = -P_{2k}(u)$, and $B_1(u) - 3u = u P_0(u)$. Exact rational Bernstein decompositions of the form
-\[
-  P(x) \;=\; \mu + \sum_{k=0}^{n} \gamma_k (x - a)^k (b - x)^{n-k}, \qquad \mu > 0,\;\; \gamma_k \ge 0
-\]
-certify $P_{1c} > 0$ (2 subintervals) and $P_{1k} > 0$ (1 interval) on $[0, 49/200]$, $P_{2c} > 0$ (1 interval) and $P_{2k} > 0$ (3 subintervals) on $[49/200, 51/125]$, and $P_0 > 0$ (1 interval) on $[0, 1/200]$.
+Writing $F_{\mathrm{core}}(B_1; u) = -u P_{1c}(u)$, $F_{\mathrm{const}}(B_1; u) = -u^2 P_{1k}(u)$, $F_{\mathrm{core}}(B_2; u) = -P_{2c}(u)$, $F_{\mathrm{const}}(B_2; u) = -P_{2k}(u)$, and $B_1(u) - 3u = u P_0(u)$, exact rational Bernstein decompositions $P(x) = \mu + \sum_{k=0}^n \gamma_k (x-a)^k (b-x)^{n-k}$ ($\mu > 0$, $\gamma_k \ge 0$) certify $P_{1c} > 0$ (2 subintervals) and $P_{1k} > 0$ (1 interval) on $[0, 49/200]$, $P_{2c} > 0$ (1 interval) and $P_{2k} > 0$ (3 subintervals) on $[49/200, 51/125]$, and $P_0 > 0$ (1 interval) on $[0, 1/200]$.
 
-Near $r = 0^+$, $u(r) \to 0$ implies $u(r) \in (0, 1/200]$ for small $r > 0$, whence $v(r) \le e(r) \le 3 u(r) < B_1(u(r)) = B(u(r))$. Suppose for contradiction that $v(r) - B(u(r))$ reaches $0$ on $[a, R]$, and let $x \in (a, R]$ be the infimum of such radii (first crossing). Even if $x \in \mathcal{J}$ is a density jump, the finiteness of $\mathcal{J}$ gives a punctured left neighborhood $(l, x)$ free of jumps on which $u(y)$ and $v(y)$ remain close to $u(x), v(x)$ by continuity, so the strict endpoint inequalities persist on $(l, x)$ (and at the corner $u(x) = 49/200$, $B(u) = \min(B_1(u), B_2(u))$ locally, so whichever piece is active has strictly negative derivative just to the left of $x$). Thus $v(y) - B(u(y))$ is strictly decreasing on $(l, x)$, forcing $v(y) > B(u(y))$ just left of $x$---contradicting that $x$ is the first crossing. Therefore $v(r) < B(u(r))$ for all $r \in (0, R]$. Since $v(r) \ge 0$ everywhere while $B(u) < 0$ for all $u \ge 51/125$, we conclude $u(r) < 51/125$ and $s(r)^2 > 23/125$ on $(0, R]$.
+Near $r = 0^+$, $u(r) \to 0$ puts $u(r) \in (0, 1/200]$, so $v(r) \le e(r) \le 3 u(r) < B_1(u(r)) = B(u(r))$. At any putative first crossing $x \in (a, R]$ where $v(x) = B(u(x))$ (including $x \in \mathcal{J}$), the finiteness of $\mathcal{J}$ and continuity of $(u, v)$ yield a jump-free punctured left neighborhood $(l, x)$ on which both endpoint inequalities persist (at $u(x)=49/200$, $B(u) = \min(B_1(u), B_2(u))$ locally). Hence $v(y) - B(u(y))$ is strictly decreasing on $(l, x)$, forcing $v(y) > B(u(y))$ just left of $x$---a contradiction. Thus $v(r) < B(u(r))$ on $(0, R]$; since $v \ge 0$ while $B(u) < 0$ for $u \ge 51/125$, we conclude $u(r) < 51/125$ and $s(r)^2 > 23/125$.
 \end{proof}
 
-\subsection{Part C: Proof of the Kerr Moment-of-Inertia Lower Bound}
+\subsection{Part C: Kerr Inertia Lower Bound and Uniform Positive Gap}
 
-\begin{theorem}[Equation-of-state-independent Kerr inertia lower bound]
+The barrier argument at $\alpha = 69/100$ works uniformly for any reference inertia $\Ibar_0 > 0$ satisfying three exact positivity conditions on $t = s^2 \in [23/125, 1]$:
+
+\begin{lemma}[Parametric barrier propagation at $\alpha = 69/100$]
+\label{lem:parametric-partC}
+Fix $\alpha = 69/100$ and $\Ibar_0 > 0$. Suppose that for every $t \in [23/125, 1]$,
+\begin{enumerate}
+  \item $4 - \Ibar_0 (1 - t)^3 > 0$,
+  \item $N_e(\tfrac{69}{100}, \Ibar_0, t) > 0$, and
+  \item $N_e(\tfrac{69}{100}, \Ibar_0, t) + N_p(\tfrac{69}{100}, \Ibar_0, t)\bigl(4 - \Ibar_0 (1 - t)^3\bigr) > 0$.
+\end{enumerate}
+Then every star satisfying Definition~\ref{def:star} together with (H6) obeys
+\begin{equation}
+  I \;=\; \frac{R^3 Z(R)}{6 s(R) + 2 Z(R)} \;>\; \Ibar_0\,M^3.
+  \label{eq:parametric-bound}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Put $W(r) \equiv W_{69/100}(r)$ and $D(r) \equiv W(r) - Z_c(\Ibar_0, s(r))$. By Proposition~\ref{prop:partB}, $t(r) \equiv s(r)^2 \in (23/125, 1]$ for all $r \in (0, R]$, so conditions (1)--(3) give $4 - \Ibar_0(1 - s^2)^3 > 0$, $c_e > 0$, and $c_e + c_p > 0$ everywhere on $(0, R]$. Together with $c_{pp} = 4(69/100)(31/100)/s^3 = 2139/(2500 s^3) > 0$ and DEC ($0 \le \pi_p \le \pi_e$), the matter residual $\operatorname{Res}(r) \equiv c_e \pi_e + c_p \pi_p + c_{pp} \pi_p^2$ satisfies $\operatorname{Res}(r) \ge \min(c_e, c_e + c_p)\,\pi_e \ge 0$, with $\operatorname{Res}(r) > 0$ whenever $\eps(r) > 0$.
+
+\emph{Central entry.} Since $\mathcal{J}$ is finite and $u, \pi_p, Z \to 0$ as $r \to 0^+$, there exists $a \in (0, R]$ such that $(0, a] \cap \mathcal{J} = \emptyset$, $u(r) \le 1/8$, and $Z(r) \ge -1/8$ on $(0, a]$. Because $1 - 2\alpha = -19/50 < 0$, $Z_c(\Ibar_0, s) \ge 0$, and $s^2 \ge 3/4$ on $(0, a]$, \eqref{eq:L-def} obeys
+\[
+  L(r) \;=\; \frac{-Z s - Z_c s + u + (1 - 2\alpha)\pi_p}{s^2} - 3 \;\le\; \frac{s/8 + 1/8}{3/4} - 3 \;\le\; -2.
+\]
+Hence $D(r) < 0 \implies r D'(r) = L D + \operatorname{Res} \ge -2 D > 0$ on $(0, a]$. With $D(r) \to 0$ as $r \to 0^+$, the last-excursion lemma yields $D(r) \ge 0$ on $(0, a]$. Since $m(a) > 0$ and $m(0) = 0$, the mean value theorem gives $x_1 \in (0, a)$ with $m'(x_1) = 4\pi x_1^2 \eps(x_1) > 0$, hence $\operatorname{Res}(x_1) > 0$; if $D(x_1) = 0$ then $x_1 D'(x_1) = \operatorname{Res}(x_1) > 0$, producing $x_0 \in (0, a]$ with $D(x_0) > 0$.
+
+\emph{Exponential barrier to the surface.} Put $K \equiv 1 - \min_{r \in [x_0, R]} (L(r)/r)$, $\eta \equiv D(x_0)/2 > 0$, $\varphi(r) \equiv e^{-K(r - x_0)}$, and $f(r) \equiv \eta \varphi(r) - D(r)$. Then $f(x_0) = -\eta < 0$. At any putative first zero $x \in (x_0, R]$ of $f$ (jump or not), on a jump-free punctured left neighborhood of $x$ we have $D'(y) \ge (L(y)/y) D(y)$ and hence $f'(y) \le -\eta \varphi(y) + (L(y)/y) f(y)$, whose continuous right-hand side equals $-\eta \varphi(x) < 0$ at $x$. Thus $f(y) > 0$ just left of $x$, a contradiction. Therefore $f(R) < 0$, i.e.\ $D(R) > \eta \varphi(R) > 0$.
+
+\emph{Surface evaluation.} Since $p(R) = 0$, $Z(R) = W(R) > Z_c(\Ibar_0, s(R)) \ge 0$. With $u_R = M/R$, $s_R = s(R)$, and $4 - 8\Ibar_0 u_R^3 = 4 - \Ibar_0(1 - s_R^2)^3 > 0$, multiplying $Z(R) > Z_c(\Ibar_0, s_R)$ by $4 - 8\Ibar_0 u_R^3 > 0$ gives $4 Z(R) > 4 \Ibar_0 u_R^3(6 s_R + 2 Z(R))$, hence $I = R^3 Z(R)/(6 s_R + 2 Z(R)) > \Ibar_0 M^3$.
+\end{proof}
+
+\begin{theorem}[Equation-of-state-independent Kerr lower bound]
 \label{thm:kerr-inertia}
-Every star in \texttt{MonotoneIsotropicDECStar} satisfies
+Every star satisfying Definition~\ref{def:star} together with (H6) obeys
 \begin{equation}
   I \;=\; \frac{R^3 Z(R)}{6 s(R) + 2 Z(R)} \;>\; 4 M^3 \;=\; I_{\mathrm{Kerr}}.
   \label{eq:main-thm}
 \end{equation}
-In particular, by Lemma~\ref{lem:mean-density}, \eqref{eq:main-thm} holds for every piecewise-smooth regular isotropic DEC star (\texttt{PiecewiseRegularIsotropicDECStar}) whose energy density $\eps$ is non-increasing on $(0, R]$.
+In particular, by Lemma~\ref{lem:mean-density}, \eqref{eq:main-thm} holds for every star satisfying (H1)--(H5) whose local energy density $\eps$ is non-increasing on $(0, R]$.
 \end{theorem}
 
 \begin{proof}
-Set $\alpha = 69/100$ and $\Ibar_0 = 4$ in Proposition~\ref{prop:partA}, writing $W(r) \equiv W_{69/100}(r)$ and $D(r) \equiv W(r) - Z_c(4, s(r))$. The proof proceeds in four steps.
-
-\medskip\noindent\textbf{Step 1 (Global non-negativity of the matter residual).}
-At $\alpha = 69/100$ and $\Ibar_0 = 4$, direct polynomial algebra yields the exact factorizations in $t = s^2$:
+Apply Lemma~\ref{lem:parametric-partC} at $\Ibar_0 = 4$. On $t \in [23/125, 1]$, $4 - 4(1-t)^3 > 0$, and direct algebra yields the exact factorizations
 \begin{align}
   N_e\!\left(\tfrac{69}{100}, 4, t\right) &\;=\; \frac{4}{25}\,t^2\,e_5(t), \qquad
   e_5(t) \;\equiv\; 31 t^5 - 117 t^4 + 51 t^3 - 1023 t^2 + 1737 t - 279, \label{eq:e5}\\
   N_e\!\left(\tfrac{69}{100}, 4, t\right) + N_p\!\left(\tfrac{69}{100}, 4, t\right)\!\bigl(4 - 4(1-t)^3\bigr) &\;=\; \frac{8}{25}\,t^3\,s_4(t), \qquad
   s_4(t) \;\equiv\; 31 t^4 - 48 t^3 - 363 t^2 + 498 t - 63. \label{eq:s4}
 \end{align}
-Each of $e_5(t)$ and $s_4(t)$ is certified strictly positive on the entire interval $t \in [23/125, 1]$ by a \emph{single-interval} exact rational Bernstein identity (no subdivision required):
-\begin{align*}
-  e_5(t) &\;=\; \frac{188093445758}{30517578125} + \sum_{k=1}^{5} \gamma_k^{(e)} \left(t - \tfrac{23}{125}\right)^k (1 - t)^{5-k} \;>\; 0, \\
-  s_4(t) &\;=\; \frac{3925485571}{244140625} + \sum_{k=1}^{4} \gamma_k^{(s)} \left(t - \tfrac{23}{125}\right)^k (1 - t)^{4-k} \;>\; 0,
-\end{align*}
-with all rational coefficients $\gamma_k^{(e)}, \gamma_k^{(s)} > 0$ (explicitly listed in \texttt{e5\_pos\_0} and \texttt{s4\_pos\_0} of \texttt{T4A18\_KerrInertia.lean}). By Proposition~\ref{prop:partB}, $s(r)^2 \in (23/125, 1]$ on $(0, R]$, so $c_e > 0$ and $c_e + c_p > 0$ everywhere on $(0, R]$. Together with $c_{pp} = 4(69/100)(31/100)/s^3 = 2139/(2500 s^3) > 0$ and DEC ($0 \le \pi_p \le \pi_e$), the matter residual
-\[
-  \operatorname{Res}(r) \;\equiv\; c_e \pi_e + c_p \pi_p + c_{pp} \pi_p^2
-\]
-satisfies $\operatorname{Res}(r) \ge \min(c_e, c_e + c_p)\,\pi_e \ge 0$ everywhere on $(0, R]$, with strict inequality $\operatorname{Res}(r) > 0$ whenever $\eps(r) > 0$.
-
-\medskip\noindent\textbf{Step 2 (Central non-negativity and strict interior entry).}
-Since $\mathcal{J}$ is finite and $u, \pi_p, Z \to 0$ as $r \to 0^+$, there exists $a \in (0, R]$ such that $(0, a]$ contains no jumps and satisfies $u(r) \le 1/8$, $Z(r) \ge -1/8$ on $(0, a]$. On $(0, a]$, the linear coefficient \eqref{eq:L-def} obeys the elementary upper bound
-\[
-  L(r) \;=\; \frac{-Z s - Z_c s + u + (1 - 2\alpha)\pi_p}{s^2} - 3 \;\le\; \frac{s/8 + 1/8}{3/4} - 3 \;\le\; -2
-\]
-(since $1 - 2\alpha = -19/50 < 0$ and $s^2 \ge 3/4$). Consequently, if $D(r) < 0$ at any $r \in (0, a]$, then $r D'(r) = L D + \operatorname{Res} \ge -2 D > 0$. By the weighted central limits, $D(r) \to 0$ as $r \to 0^+$. A standard last-excursion argument shows $D(r) \ge 0$ for all $r \in (0, a]$: if $D(x) < 0$ for some $x \in (0, a]$, choosing $b \in (0, x)$ with $D(b) > D(x)$ and considering the supremum of points in $[b, x]$ where $D \ge (D(x) + \min(D(b), 0))/2$ produces a contradiction with $D' \ge 0$ whenever $D < 0$.
-
-Moreover, $D$ cannot vanish identically on $(0, a]$: since $m(a) > 0$ and $m(0) = 0$, the mean value theorem yields some $x_1 \in (0, a)$ with $m'(x_1) = 4\pi x_1^2 \eps(x_1) > 0$, hence $\eps(x_1) > 0$ and $\operatorname{Res}(x_1) > 0$. If $D(x_1) = 0$, then $x_1 D'(x_1) = \operatorname{Res}(x_1) > 0$, so $D(x_0) > 0$ at some $x_0 \in (x_1, a)$. Thus there exists $x_0 \in (0, R]$ with $D(x_0) > 0$.
-
-\medskip\noindent\textbf{Step 3 (Exponential barrier propagation to the surface across jumps).}
-Since $L(r)/r$ is continuous on the compact interval $[x_0, R]$, it attains a minimum there; set $K \equiv 1 - \min_{[x_0, R]} (L(r)/r)$, so $K + L(r)/r \ge 1$ on $[x_0, R]$. Define $\eta \equiv D(x_0)/2 > 0$, $\varphi(r) \equiv e^{-K(r - x_0)}$, and $f(r) \equiv \eta \varphi(r) - D(r)$. Then $f(x_0) = -\eta < 0$ and $f$ is continuous on $[x_0, R]$. At any putative first zero $x \in (x_0, R]$ of $f$ (whether or not $x \in \mathcal{J}$), on a jump-free punctured left neighborhood of $x$ we have $D'(y) \ge (L(y)/y) D(y)$ (since $\operatorname{Res}(y) \ge 0$), hence
-\[
-  f'(y) \;\le\; -K \eta \varphi(y) - \frac{L(y)}{y}(\eta\varphi(y) - f(y))
-  \;=\; -\Bigl(K + \frac{L(y)}{y}\Bigr)\eta\varphi(y) + \frac{L(y)}{y} f(y)
-  \;\le\; -\eta\varphi(y) + \frac{L(y)}{y} f(y).
-\]
-Since the right-hand side is continuous and equals $-\eta\varphi(x) < 0$ at $x$, it stays strictly negative on a punctured left neighborhood of $x$, forcing $f(y) > 0$ just left of $x$ and contradicting that $x$ is the first crossing. Thus $f(R) < 0$, i.e.\ $D(R) > \eta \varphi(R) > 0$.
-
-\medskip\noindent\textbf{Step 4 (Surface evaluation).}
-Because $p(R) = 0$, we have $\pi_p(R) = 0$ and $Z(R) = W(R) > Z_c(4, s(R)) \ge 0$. Letting $u_R = M/R$ and $s_R = s(R)$, we have $1 - 8 u_R^3 > 0$ and $Z_c(4, s_R)(1 - 8 u_R^3) = 24 s_R u_R^3$. Multiplying $Z(R) > Z_c(4, s_R)$ by $1 - 8 u_R^3 > 0$ gives $Z(R) > 4 u_R^3 (6 s_R + 2 Z(R))$, and multiplying by $R^3/(6 s_R + 2 Z(R)) > 0$ yields $I = R^3 Z(R)/(6 s_R + 2 Z(R)) > 4 (u_R R)^3 = 4 M^3$.
+Single-interval exact rational Bernstein identities on $[23/125, 1]$ certify $e_5(t) > 0$ (minimum constant term $188093445758 / 30517578125 \approx 6.163$) and $s_4(t) > 0$ (minimum constant term $3925485571 / 244140625 \approx 16.079$).
 \end{proof}
+
+\begin{theorem}[Uniform positive inertia gap above the Kerr value]
+\label{thm:uniform-gap}
+Every star satisfying Definition~\ref{def:star} together with (H6) obeys the uniform bound
+\begin{equation}
+  I \;>\; \frac{1001}{250}\,M^3 \;=\; 4.004\,M^3.
+  \label{eq:uniform-gap}
+\end{equation}
+Consequently, the infimum of $I/M^3$ over the entire admissible mean-density DEC class is bounded strictly away from the Kerr black-hole value: $\inf \,(I/M^3) \ge 4.004 > 4$.
+\end{theorem}
+
+\begin{proof}
+Apply Lemma~\ref{lem:parametric-partC} at $\Ibar_0 = 1001/250$. On $t \in [23/125, 1]$, we have $0 \le 1 - t \le 102/125$, so $(1 - t)^3 \le (102/125)^3 < 55/100$ and hence $4 - (1001/250)(1 - t)^3 > 4 - 4.004 \times 0.55 > 1.7 > 0$. Both degree-7 polynomials $N_e(\frac{69}{100}, \frac{1001}{250}, t)$ and $N_e(\frac{69}{100}, \frac{1001}{250}, t) + N_p(\frac{69}{100}, \frac{1001}{250}, t)(4 - \frac{1001}{250}(1 - t)^3)$ admit single-interval exact rational Bernstein decompositions on $[23/125, 1]$ with strictly positive minimum Bernstein coefficients ($\approx 0.016168$ and $\approx 0.006400$, respectively; machine-checked in Lean~4).
+\end{proof}
+
+\begin{remark}[Tightness of the barrier margin]
+The proof is finely tuned in compactness: at $\alpha = 69/100$ and $\Ibar_0 = 4$, $e_5(t)$ changes sign at $t \approx 0.179493$ ($u \approx 0.410253$), only $0.00225$ above our auxiliary compactness wall $u < 51/125 = 0.408$ (and $0.00468$ above Bondi's relaxed ceiling $0.405573$). This thin margin explains why $\Ibar_0$ can be pushed cleanly past $4$ to $4.004$ by the same barrier without changing $\alpha$ or the compactness wall, while substantially larger bounds (toward the numerical infimum $\approx 4.264$) require a sharper barrier.
+\end{remark}
 
 \section{Non-Vacuity: Explicit Analytic Smooth and Two-Layer Witnesses}
 \label{sec:nonvacuity}
 
-To demonstrate that neither \texttt{RegularIsotropicDECStar} nor \texttt{PiecewiseRegularIsotropicDECStar} is vacuous, we construct two explicit physical stars satisfying every hypothesis of Theorem~\ref{thm:kerr-inertia}.
+To verify that Definition~\ref{def:star} together with (H6) is non-vacuous in both the smooth ($\mathcal{J} = \emptyset$) and discontinuous ($\mathcal{J} \neq \emptyset$) regimes, we exhibit two explicit physical stars.
 
 \subsection{Smooth Witness: Homogeneous Schwarzschild Interior (\texorpdfstring{$C = 1/10$}{C = 1/10})}
 
@@ -360,97 +377,104 @@ Fix $R = 1$, $M = C = 1/10$, $\rho = 3C/(4\pi) = 3/(40\pi)$, $a = \sqrt{1 - 2C} 
   N(r) \;=\; \frac{3a - s(r)}{2}.
   \label{eq:schw-interior}
 \end{equation}
-Since $a = \sqrt{4/5} > 1/2$, we have $3a - s(r) \ge 3a - 1 > 0$, $s(r) \ge a > 0$, $p(1) = 0$, and $0 \le p(r)/\rho \le (1 - a)/(3a - 1) \approx 0.0627 < 1$, verifying DEC and $4\pi r^3 \eps = 3 m$ identically. Direct differentiation checks $m' = 4\pi r^2 \rho$ and $p' = -4\rho a C r / [s(3a-s)^2]$, matching \eqref{eq:tov}.
-
-For Hartle's equation \eqref{eq:hartle-2nd}, $j(r) = s(r)/N(r) = 2 s(r)/(3a - s(r))$ is positive, even, and real-analytic on $[0, 1]$, with $j'(r) = 6 a s'(r)/(3a-s)^2 < 0$ for $r \in (0, 1]$. The regular singular point $r=0$ of \eqref{eq:hartle-2nd} has indicial roots $0$ and $-3$, so Frobenius theory yields a unique smooth solution $\wbar$ normalized by $\wbar(0) = 1$, $\wbar'(0) = 0$, with $\wbar(r) = 1 + \frac{8\pi}{5}(\rho + p(0)) r^2 + O(r^4)$ \cite{Petroff2007}. Integrating \eqref{eq:hartle-2nd} from $0$ to $r$ gives
-\[
-  r^4 j(r)\,\wbar'(r) \;=\; \int_0^r (-4 t^3 j'(t))\,\wbar(t)\,\dd t.
-\]
-While $\wbar > 0$, the integrand is strictly positive on $(0, r]$, so $\wbar' > 0$ and $\wbar$ is strictly increasing from $1$; hence $\wbar$ can never vanish on $[0, 1]$. Therefore $Z(r) = r s(r)\wbar'(r)/\wbar(r)$ is smooth on $[0, 1]$, solves \eqref{eq:hartle-Z} globally, satisfies $Z(0) = 0$ and $Z(r) = O(r^2)$ as $r \to 0^+$, and furnishes a complete smooth witness. Numerical integration gives $Z(1) = 0.25824624$ and $\Ibar = I/M^3 = 43.896617 > 4$.
+Since $a = \sqrt{4/5} > 1/2$, we have $3a - s(r) \ge 3a - 1 > 0$, $s(r) \ge a > 0$, $p(1) = 0$, $0 \le p(r)/\rho \le (1 - a)/(3a - 1) \approx 0.0627 < 1$, and $4\pi r^3 \eps = 3 m$ identically. Direct differentiation verifies \eqref{eq:tov}. For Hartle's equation \eqref{eq:hartle-2nd}, $j(r) = 2 s(r)/(3a - s(r))$ is positive, even, and real-analytic on $[0, 1]$ with $j'(r) < 0$ on $(0, 1]$; Frobenius theory at the regular singular point $r=0$ (indicial roots $0, -3$) yields a unique smooth solution $\wbar(r) = 1 + \frac{8\pi}{5}(\rho + p(0)) r^2 + O(r^4)$ \cite{Petroff2007}, which stays strictly positive on $[0, 1]$ by Lemma~\ref{lem:wbar-pos}. Thus $Z(r) = r s(r)\wbar'(r)/\wbar(r)$ satisfies (H1)--(H6) with $\mathcal{J} = \emptyset$. Numerical integration gives $Z(1) = 0.25824624$ and $\Ibar = 43.896617 > 4.004$.
 
 \subsection{Discontinuous Witness: Two-Layer DEC Star (\texorpdfstring{$\mathcal{J} = \{1/2, 1\}$}{J = \{1/2, 1\}})}
 
-Set $R = 1$, $\mathcal{J} = \{1/2, 1\}$, and $\rho = 3/(800\pi)$, with piecewise-constant non-increasing density
-\[
-  \eps(r) \;=\; \begin{cases}
-    2\rho, & 0 < r < \tfrac{1}{2},\\
-    \rho, & \tfrac{1}{2} \le r < 1,\\
-    0, & r \ge 1.
-  \end{cases}
-\]
-Integrating $m' = 4\pi r^2 \eps$ with $m(0) = 0$ gives a continuous mass profile satisfying $0 < m(r) \le r^3/100$ on $(0, 1]$, so $s(r) \ge \sqrt{49/50} > 0$ and $m(r)/r \to 0$. Integrating the TOV equation \eqref{eq:tov} inward from $p(1) = 0$ with continuous pressure across $r = 1/2$, while $0 \le p \le \rho$ we have $m + 4\pi r^3 p \le r^3/100 + 3 r^3/200 = r^3/40$, $s^2 \ge 49/50$, and $\eps + p \le 3\rho$, hence
-\[
-  0 \;\le\; -p'(r) \;\le\; \frac{3\rho\,(r^3/40)}{r^2\,(49/50)} \;=\; \frac{15}{196}\,\rho r
-\]
-on each open layer. Integrating over $[0, 1]$ yields $0 \le p(r) \le (15/392)\rho < \rho \le \eps(r)$ on $(0, 1)$, so DEC holds strictly on both layers and at the interface $r = 1/2$ (and $p(1) = 0 = \eps(1)$ at the surface). Matching the regular core Hartle solution ($\wbar(0)=1$) continuously in $\wbar$ and $F \equiv r^4 j \wbar'$ at $r = 1/2$ yields $F' = -4 r^3 j' \wbar > 0$ on both open layers, so $\wbar \ge 1$ and $Z = s F/(r^3 j \wbar)$ is continuous on $(0, 1]$ with $Z(r) = O(r^2)$ at the center. This verifies every field of \texttt{PiecewiseRegularIsotropicDECStar} together with \texttt{AntitoneOn S.$\eps$ (Ioc 0 S.R)}.
+Set $R = 1$, $\mathcal{J} = \{1/2, 1\}$, and $\rho = 3/(800\pi)$, with non-increasing piecewise-constant density $\eps(r) = 2\rho$ on $(0, 1/2)$, $\eps(r) = \rho$ on $[1/2, 1)$, and $\eps(r) = 0$ for $r \ge 1$. Integrating $m' = 4\pi r^2 \eps$ from $m(0) = 0$ gives continuous $m$ with $0 < m(r) \le r^3/100$ on $(0, 1]$, so $s(r) \ge \sqrt{49/50} > 0$. Integrating TOV inward from $p(1) = 0$ with continuous $p$ across $r = 1/2$, while $0 \le p \le \rho$ we have $0 \le -p'(r) \le (15/196)\rho r$ on each open layer, hence $0 \le p(r) \le (15/392)\rho < \rho \le \eps(r)$ on $(0, 1)$ and $p(1) = 0 = \eps(1)$. Matching the regular core Hartle solution ($\wbar(0)=1$) continuously in $\wbar$ and $r^4 j \wbar'$ at $r = 1/2$, Lemma~\ref{lem:wbar-pos} ensures $\wbar \ge 1$ everywhere and yields a continuous pole-free $Z$ satisfying (H1)--(H6) and local monotonicity of $\eps$.
 
 \begin{remark}
-While the proofs above establish non-vacuity mathematically, formalizing \texttt{Nonempty MonotoneIsotropicDECStar} inside Lean~4 requires an internal Mathlib existence proof for the regular Frobenius solution of Hartle's ODE \eqref{eq:hartle-2nd}. That formalization is a well-defined next step and is not yet included in the repository.
+While the constructions above establish non-vacuity mathematically, formalizing \texttt{Nonempty MonotoneIsotropicDECStar} inside Lean~4 requires a Mathlib existence proof for Hartle's singular linear ODE \eqref{eq:hartle-2nd} and is left as future work.
 \end{remark}
 
-\section{Sharpness, Beyond-DEC Extension, and Necessity of Isotropy}
+\section{Numerical Sharpness, Beyond-DEC Extension, and Necessity of Isotropy}
 \label{sec:sharpness}
 
-\subsection{Numerical Sharpness Benchmarks}
+\emph{Notice:} All results in this section are numerical benchmarks and extensions (not formalized in Lean~4) reproduced in full by the standalone script \texttt{scripts/verify\_paper\_benchmarks.py}.
 
-Theorem~\ref{thm:kerr-inertia} proves the strict Kerr benchmark $\Ibar = I/M^3 > 4$, but $4$ is \emph{not} the sharp infimum of $\Ibar$ over \texttt{MonotoneIsotropicDECStar}. Table~\ref{tab:sharpness} compares high-precision numerical integrations of the coupled Hartle--TOV equations across two extremal families:
+\subsection{Sharpness Across Local-Density and Mean-Density Classes}
+
+Table~\ref{tab:sharpness} compares coupled Hartle--TOV integrations across three nested classes:
 \begin{enumerate}
-  \item \emph{Uniform-density Schwarzschild stars} ($\eps = \text{const}$): reach the DEC ceiling $p_c = \eps$ at $C = 3/8 = 0.375$ with $\Ibar = 4.654887$, and approach the Buchdahl limit $C \to 4/9$ (violating DEC with $p_c/\eps \to \infty$) with $I/(MR^2) \to 0.7992$ and $\Ibar \to 4.0459$ \cite{ChandrasekharMiller1974,Posada2017}.
-  \item \emph{Two-zone monotone isotropic DEC stars} ($p = \eps$ stiff core on $[0, r_{\mathrm{sw}}]$ matched continuously in $\eps$ and $p$ to a constant-density envelope $\eps(r) = \eps(r_{\mathrm{sw}})$ on $[r_{\mathrm{sw}}, R]$, in units $\eps_c = 1$): satisfy $0 \le p \le \eps$ and $\eps' \le 0$ everywhere, exceed the uniform DEC compactness limit $3/8$ to reach $C = 0.398800$ ($2C = 0.797600$), and attain a minimum $\Ibar = 4.285459$ near $r_{\mathrm{sw}} = 0.40$.
+  \item \emph{Uniform-density Schwarzschild stars} ($\eps = \text{const}$): hit the uniform DEC ceiling $p_c = \eps$ at $C = 3/8 = 0.375$ with $\Ibar = 4.654887$, and approach the Buchdahl limit $C \to 4/9$ (violating DEC) with $I/(MR^2) \to 0.7992$ and $\Ibar \to 4.0459$ \cite{ChandrasekharMiller1974,Hartle1978,Posada2017}.
+  \item \emph{Locally monotone ($\eps' \le 0$) two-zone DEC stars}: a stiff $p = \eps$ core on $[0, r_{\mathrm{sw}}]$ matched continuously in $\eps$ and $p$ to a constant-density envelope $\eps = p(r_{\mathrm{sw}})$ on $[r_{\mathrm{sw}}, R]$ (in units $\eps_c = 1$). These stars satisfy $\eps' \le 0$ and $0 \le p \le \eps$ everywhere, exceed $C = 3/8$ to reach $C = 0.398800$, and reach $\Ibar = 4.285459$ at $r_{\mathrm{sw}} = 0.40$.
+  \item \emph{Mean-density monotone ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars} (the exact wider class of Definition~\ref{def:star} + (H6)): the same $p = \eps$ core on $[0, r_{\mathrm{sw}}]$, followed by an upward density jump at $r_{\mathrm{sw}}$ to constant envelope density $\eps_{\mathrm{env}} = 3 m(r_{\mathrm{sw}})/(4\pi r_{\mathrm{sw}}^3) > p(r_{\mathrm{sw}})$ so that $4\pi r^3 \eps = 3 m$ holds identically on $[r_{\mathrm{sw}}, R]$. These stars reach $C = 0.405568$ (at $r_{\mathrm{sw}} = 0.45$, matching Bondi's relaxed ceiling $0.405573$) and drop further to $\Ibar = 4.263934$ (at $r_{\mathrm{sw}} = 0.55$).
 \end{enumerate}
 
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}llrrrr@{}}
 \toprule
-Configuration & $p_c/\eps_c$ & $C = M/R$ & $I/(MR^2)$ & $\Ibar = I/M^3$ \\
+Class & Configuration & $p_c/\eps_c$ & $C = M/R$ & $I/(MR^2)$ & $\Ibar = I/M^3$ \\
 \midrule
-Uniform Schwarzschild ($C = 0.10$) & $0.06272$ & $0.100000$ & $0.438966$ & $43.896617$ \\
-Uniform Schwarzschild ($C = 0.30$) & $0.40958$ & $0.300000$ & $0.566436$ & $6.293731$ \\
-Uniform Schwarzschild (DEC limit $C = 3/8$) & $1.00000$ & $0.375000$ & $0.654593$ & $4.654887$ \\
-Two-zone DEC ($r_{\mathrm{sw}} = 0.25$) & $1.00000$ & $0.398128$ & $0.686416$ & $4.330515$ \\
-Two-zone DEC ($r_{\mathrm{sw}} = 0.30$, near max $C$) & $1.00000$ & $0.398800$ & $0.684202$ & $4.302025$ \\
-Two-zone DEC ($r_{\mathrm{sw}} = 0.40$, near min $\Ibar$) & $1.00000$ & $0.395793$ & $0.671326$ & $4.285459$ \\
+Uniform ($\eps = \text{const}$) & $C = 0.10$ & $0.06272$ & $0.100000$ & $0.438966$ & $43.896617$ \\
+Uniform ($\eps = \text{const}$) & $C = 0.30$ & $0.40958$ & $0.300000$ & $0.566436$ & $6.293731$ \\
+Uniform (DEC limit) & $C = 3/8$ & $1.00000$ & $0.375000$ & $0.654593$ & $4.654887$ \\
 \midrule
-Uniform Schwarzschild ($C = 0.4444$, violates DEC) & $1666.7$ & $0.444400$ & $0.799034$ & $4.045920$ \\
-Kerr black hole (slow-rotation limit) & --- & $0.500000$ & --- & $4.000000$ \\
+Local-monotone DEC ($\eps' \le 0$) & Two-zone ($r_{\mathrm{sw}} = 0.30$, max $C$) & $1.00000$ & $0.398800$ & $0.684201$ & $4.302025$ \\
+Local-monotone DEC ($\eps' \le 0$) & Two-zone ($r_{\mathrm{sw}} = 0.40$, min $\Ibar$) & $1.00000$ & $0.395793$ & $0.671326$ & $4.285459$ \\
+\midrule
+Mean-density DEC ($4\pi r^3\eps \le 3m$) & Bang--bang ($r_{\mathrm{sw}} = 0.45$, max $C$) & $1.00000$ & $0.405568$ & $0.702238$ & $4.269303$ \\
+Mean-density DEC ($4\pi r^3\eps \le 3m$) & Bang--bang ($r_{\mathrm{sw}} = 0.55$, min $\Ibar$) & $1.00000$ & $0.404665$ & $0.698235$ & $4.263934$ \\
+\midrule
+Uniform (violates DEC) & $C = 0.4444$ (near Buchdahl) & $1666.7$ & $0.444400$ & $0.799034$ & $4.045920$ \\
+Theorem~\ref{thm:uniform-gap} (Lean~4) & Uniform lower bound & $\le 1$ & $< 0.408$ & --- & $> 4.004000$ \\
+Kerr black hole & Slow-rotation limit & --- & $0.500000$ & --- & $4.000000$ \\
 \bottomrule
 \end{tabular}
-\caption{Coupled Hartle--TOV benchmarks for uniform-density and two-zone monotone isotropic DEC stars (all computed with \texttt{scipy.integrate.solve\_ivp}, \texttt{rtol}=$10^{-12}$--$10^{-13}$). Two-zone monotone DEC stars exceed $C = 3/8$ while remaining well above $\Ibar = 4$.}
+\caption{Coupled Hartle--TOV sharpness benchmarks generated by \texttt{scripts/verify\_paper\_benchmarks.py}. Within the theorem's own mean-density DEC class, bang--bang stars reach $C = 0.405568$ and $\Ibar = 4.263934$, placing the true infimum in $[4.004, 4.264]$.}
 \label{tab:sharpness}
 \end{table}
 
-Determining the exact sharp infimum $\inf \Ibar$ over \texttt{MonotoneIsotropicDECStar} (which Table~\ref{tab:sharpness} places in $[4, 4.2855]$) remains an interesting variational problem.
+\subsection{Beyond-DEC Numerical Extension and the Open Buchdahl Problem}
 
-\subsection{Beyond-DEC Extension and the Open Buchdahl Question}
+For a general upper pressure bound $0 \le p \le w \eps$, numerically optimizing $\alpha \in [0.65, 0.72]$ in Proposition~\ref{prop:partA} at $\Ibar_0 = 4$ (reproduced in \texttt{scripts/verify\_paper\_benchmarks.py}) gives $\alpha_* \approx 0.696647$ at $w=1$ (compactness threshold $u \le 0.411497 > 0.405573$) and shows that the barrier threshold remains above Bondi's relaxed compactness ceiling $\mu_{\max}(w)$ up to $w_* \approx 1.155605$ (where $\mu_{\max}(w_*) \approx 0.411339$). Dropping the upper pressure bound altogether (the full Buchdahl class, $p/\eps \to \infty$) causes $c_p < 0$ to dominate $c_e$ on $u \in (0.3674, 4/9)$, so extending our constructive barrier proof to the full Buchdahl class remains an open problem.
 
-Optimizing the shift parameter $\alpha$ in Proposition~\ref{prop:partA} at $\Ibar_0 = 4$ yields $\alpha_* \approx 0.69664743$, which keeps both $c_e > 0$ and $c_e + c_p > 0$ up to $u \le 0.41149742$. Combining this with Bondi's relaxed compactness ceiling $\mu_{\max}(w)$ for $0 \le p \le w \eps$ extends the barrier proof of $I > 4 M^3$ beyond DEC up to $w_* \approx 1.155605$ (where $\mu_{\max}(w_*) \approx 0.411339$).
+\subsection{Necessity of Isotropy: Explicit Smooth Anisotropic Full-DEC Counterexamples}
 
-By contrast, dropping the upper pressure bound $p \le w\eps$ altogether (the full Buchdahl class: $p \ge 0$, $\eps' \le 0$, $p_c \to \infty$) defeats the linear shift \eqref{eq:W-D-def}: for $u \in (0.3674, 4/9)$, $c_p(\alpha, 4, s)$ is negative whenever $c_e(\alpha, 4, s) \ge 0$, so arbitrarily large $p/\eps$ can make $c_e \pi_e + c_p \pi_p$ negative. Whether $I > 4 M^3$ holds across the entire Buchdahl class (as suggested by the uniform-density Buchdahl limit $\Ibar \to 4.046$) therefore requires a different Lyapunov functional and remains open.
+When pressure isotropy ($p_r = p_t$) is relaxed to allow tangential stress $p_t \neq p_r$ under rigid slow rotation \cite{Silva2015}, the Riccati equation \eqref{eq:hartle-Z} generalizes to
+\begin{equation}
+  r Z' \;=\; -\frac{Z^2}{s} + Z\!\left(\frac{1 - 7 s^2}{2 s^2} + \frac{\pi_{p_r}}{s^2}\right) + \frac{4(\pi_e + \pi_{p_t})}{s},
+  \qquad r\pi_{p_r}' \;=\; 2\pi_{p_t} - \frac{(\pi_e + \pi_{p_r})(1 - s^2 + 2\pi_{p_r})}{2 s^2}.
+  \label{eq:aniso-hartle}
+\end{equation}
+Physically, tangential tension ($p_t < 0$) suppresses the azimuthal inertia source $\eps + p_t$ while preserving the gravitational mass source $\eps$, allowing $I/M^3$ to fall strictly below $4$ even under the full covariant DEC ($|p_r| \le \eps$, $|p_t| \le \eps$, $\eps \ge 0$), strictly decreasing density ($\eps' < 0$), and low compactness.
 
-\subsection{Necessity of the Isotropy Hypothesis}
-
-If pressure isotropy ($p_r = p_t$) is relaxed to allow anisotropic tangential stress $p_t \neq p_r$ while preserving the full covariant dominant energy condition ($|p_r| \le \eps$, $|p_t| \le \eps$, $\eps \ge 0$), the inequality $I > 4 M^3$ \emph{fails}. Indeed, the anisotropic generalization of Proposition~\ref{prop:partA} introduces the tangential stress term $+4(1-\alpha)\pi_{p_t}/s$ into the Hartle residual; strong tangential tension ($p_t < 0$) reduces the frame-dragging source $4(\pi_e + \pi_{p_t})/s$ and lowers $I/M^3$. Explicit thin-shell and smooth weak-gravity anisotropic DEC configurations achieve $\Ibar \in [3.74, 3.77] < 4$ (see \cite{BartaGergely2026} for isotropic EOS benchmarks and the companion script \texttt{scripts/verify\_t4a18\_kerr\_inertia\_floor.py} for anisotropic diagnostics). Consequently, the isotropy assumption in Theorem~\ref{thm:kerr-inertia} cannot be dropped without replacing it by a lower bound on $p_t$.
+In scaled variables $(e, p, q) \equiv 4\pi(\eps, p_r, p_t)$, consider the explicit $C^\infty$-smooth anisotropic model
+\begin{equation}
+  p_c = 12, \quad e_0 = 10^{-3}, \quad c = \frac{99}{100}, \quad
+  e(p) = \frac{p}{c} + e_0, \quad
+  q(r, p) = p - (p + c e)\,\frac{(2r)^8}{1 + (2r)^8},
+  \label{eq:aniso-smooth}
+\end{equation}
+which has an isotropic center ($q - p = O(r^8)$), strictly decreasing energy density ($\eps' < 0$), and strictly interior DEC ($\max(|p_r|, |p_t|)/\eps < 0.99$ everywhere on $[0, R)$). Direct numerical integration in \texttt{scripts/verify\_paper\_benchmarks.py}---cross-checked between the Riccati ODE \eqref{eq:aniso-hartle} and the independent second-order linear Hartle--Silva ODE $\wbar'' + (4/r - r(e+p)/f)\wbar' - (4(e+q)/f)\wbar = 0$ to $< 10^{-8}$---gives
+\[
+  R \approx 2.7233, \qquad C = \frac{M}{R} \approx 0.07286, \qquad \max_r\frac{m}{r} \approx 0.2418, \qquad
+  \Ibar = \frac{I}{M^3} \approx 3.758145 \;<\; 4.
+\]
+(A continuous piecewise model with $c = 1$, $q = p$ on $[0, 0.4]$ and $q = -e$ on $(0.4, R]$ lowers this further to $\Ibar \approx 3.557269 < 4$ at $C \approx 0.06516$.) Thus the isotropy hypothesis in Theorems~\ref{thm:kerr-inertia} and~\ref{thm:uniform-gap} cannot be dropped without replacing it by a lower bound on $p_t$.
 
 \section{Lean~4 Formalization, Verification, and Workflow Disclosure}
 \label{sec:lean}
 
-The complete proof of Lemma~\ref{lem:mean-density}, Proposition~\ref{prop:partA}, Proposition~\ref{prop:partB}, and Theorem~\ref{thm:kerr-inertia} is formalized in Lean~4.36.0 + Mathlib in \texttt{NaturalMechanics/T4A18\_KerrInertia.lean} ($1{,}576$ lines) in the public repository \url{https://github.com/iancenco/relativistic-bounds-lean4}. Key verification properties are:
+The complete proof of Lemma~\ref{lem:mean-density}, Proposition~\ref{prop:partA}, Proposition~\ref{prop:partB}, Lemma~\ref{lem:parametric-partC}, Theorem~\ref{thm:kerr-inertia}, and Theorem~\ref{thm:uniform-gap} is formalized in Lean~4.36.0 + Mathlib in \texttt{NaturalMechanics/T4A18\_KerrInertia.lean} in the public repository \url{https://github.com/iancenco/relativistic-bounds-lean4}.
+
 \begin{itemize}
-  \item \emph{Zero floating-point arithmetic:} All polynomial positivity lemmas (\texttt{P1c\_pos}, \texttt{P1k\_pos}, \texttt{P2c\_pos}, \texttt{P2k\_pos}, \texttt{P0\_pos}, \texttt{e5\_pos}, \texttt{s4\_pos}) are verified as exact rational identities by \texttt{ring} and \texttt{positivity}.
-  \item \emph{Standard axioms only:} Continuous integration (\texttt{.github/workflows/lean.yml}) runs \texttt{lake exe cache get}, \texttt{lake build}, a prohibited-token scan (\texttt{sorry}, \texttt{admit}, custom \texttt{axiom}, \texttt{unsafe}, \texttt{implemented\_by}, \texttt{native\_decide}, \texttt{@[extern]}), and an automated \texttt{\#print axioms} check verifying that every headline theorem depends solely on \texttt{[propext, Classical.choice, Quot.sound]}.
-  \item \emph{Main Lean~4 declarations:}
+  \item \emph{Zero floating-point arithmetic:} All polynomial positivity lemmas (\texttt{P1c\_pos}, \texttt{P1k\_pos}, \texttt{P2c\_pos}, \texttt{P2k\_pos}, \texttt{P0\_pos}, \texttt{e5\_pos}, \texttt{s4\_pos}, and the $\Ibar_0 = 1001/250$ Bernstein certificates) are verified as exact rational identities by \texttt{ring} and \texttt{positivity}.
+  \item \emph{Standard axioms only:} GitHub Actions CI (\texttt{.github/workflows/lean.yml}) runs \texttt{lake exe cache get}, \texttt{lake build}, a prohibited-token scan (\texttt{sorry}, \texttt{admit}, custom \texttt{axiom}, \texttt{unsafe}, \texttt{implemented\_by}, \texttt{native\_decide}, \texttt{@[extern]}), and an automated \texttt{\#print axioms} check confirming that every theorem depends solely on \texttt{[propext, Classical.choice, Quot.sound]}.
+  \item \emph{Headline Lean~4 declarations (namespace \texttt{NaturalMechanics.T4A18}):}
     \begin{itemize}
-      \item \texttt{MonotoneIsotropicDECStar.t4a18\_unconditional\_kerr\_inertia\_floor} (Theorem~\ref{thm:kerr-inertia}, mean-density form);
-      \item \texttt{t4a18\_kerr\_inertia\_floor\_of\_antitone\_piecewise} (Theorem~\ref{thm:kerr-inertia}, literal non-increasing $\eps$ with finitely many jumps);
-      \item \texttt{MonotoneIsotropicDECStar.compactness\_wall} (Proposition~\ref{prop:partB}, auxiliary compactness bound $m/r < 51/125$);
+      \item \texttt{MonotoneIsotropicDECStar.t4a18\_unconditional\_kerr\_inertia\_floor} (Theorem~\ref{thm:kerr-inertia}, $I > 4 M^3$);
+      \item \texttt{MonotoneIsotropicDECStar.t4a18\_uniform\_kerr\_inertia\_gap} (Theorem~\ref{thm:uniform-gap}, $I > (1001/250) M^3$);
+      \item \texttt{t4a18\_kerr\_inertia\_floor\_of\_antitone\_piecewise} and \texttt{t4a18\_uniform\_kerr\_inertia\_gap\_of\_antitone\_piecewise} (literal non-increasing $\eps$ with finitely many jumps);
+      \item \texttt{MonotoneIsotropicDECStar.compactness\_wall} (Proposition~\ref{prop:partB}, $m/r < 51/125$);
       \item \texttt{partA} (Proposition~\ref{prop:partA}, exact shifted Hartle--TOV Riccati identity).
     \end{itemize}
 \end{itemize}
 
 \paragraph{AI-assisted workflow disclosure.}
-The continuum barrier search, exact rational Bernstein certificate generation, Lean~4 formalization, and independent statement-level audit (\texttt{AUDIT-T4A18.md}) were carried out using an AI-assisted multi-model workflow directed by the author. In particular, an adversarial statement audit caught an initial omission of interior density jumps in the Lean star structure, prompting the jump-inclusive \texttt{PiecewiseRegularIsotropicDECStar} revision prior to publication of the repository. Logical correctness of the formalized theorems depends strictly on the Lean~4 kernel and standard axioms; physical faithfulness of the encoded assumptions and novelty relative to the literature should be evaluated directly from this manuscript and the accompanying source files.
+The continuum barrier search, exact rational Bernstein certificate synthesis, Lean~4 formalization, and independent statement audit (\texttt{AUDIT-T4A18.md}) were carried out via an AI-assisted multi-model workflow directed by the author. In particular, an adversarial statement audit caught an initial omission of interior density jumps in the Lean star structure, prompting the jump-inclusive \texttt{PiecewiseRegularIsotropicDECStar} revision. Logical correctness of the formalized theorems depends strictly on the Lean~4 kernel and standard axioms; physical faithfulness and literature positioning should be judged directly from this manuscript and the accompanying source files.
 
 \begin{thebibliography}{99}
 
@@ -476,8 +500,8 @@ S.~Chandrasekhar and J.~C.~Miller,
 
 \bibitem{SabbadiniHartle1977}
 A.~G.~Sabbadini and J.~B.~Hartle,
-``Upper and lower bounds on the moments of inertia of relativistic, spherical, perfect fluid neutron stars,''
-\emph{Ann.\ Phys.} \textbf{104} (1977) 95--134.
+``Bounds on the moment of inertia of nonrotating neutron stars,''
+\emph{Ann.\ Phys.} \textbf{104} (1977) 95--113.
 
 \bibitem{Hartle1978}
 J.~B.~Hartle,
@@ -491,7 +515,7 @@ D.~Barraco and V.~H.~Hamity,
 
 \bibitem{Petroff2007}
 D.~Petroff,
-``The homogeneous, slowly rotating fluid sphere in general relativity,''
+``Slowly rotating homogeneous stars and the Heun equation,''
 \emph{Class.\ Quantum Grav.} \textbf{24} (2007) 1055--1066 [arXiv:gr-qc/0701081].
 
 \bibitem{KarageorgisStalker2008}
@@ -509,6 +533,11 @@ K.~Yagi and N.~Yunes,
 ``I-Love-Q relations in neutron stars and their applications to astrophysics, gravitational waves, and fundamental physics,''
 \emph{Phys.\ Rev.\ D} \textbf{88} (2013) 023009.
 
+\bibitem{Silva2015}
+H.~O.~Silva, C.~F.~B.~Macedo, E.~Berti, and L.~C.~B.~Crispino,
+``Slowly rotating anisotropic neutron stars in general relativity and scalar--tensor theory,''
+\emph{Class.\ Quantum Grav.} \textbf{32} (2015) 145008.
+
 \bibitem{BreuRezzolla2016}
 C.~Breu and L.~Rezzolla,
 ``Maximum mass, moment of inertia and compactness of relativistic stars,''
@@ -522,7 +551,7 @@ C.~Posada,
 \bibitem{BartaGergely2026}
 D.~Barta and L.~\'A.~Gergely,
 ``Compactness relations and Hartle--Thorne quadrupoles for neutron-star spin flip-flops,''
-\emph{Universe} (November 2026).
+\emph{Universe} \textbf{12}(11) (2026) 344.
 
 \end{thebibliography}
 
