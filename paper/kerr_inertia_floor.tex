@@ -53,19 +53,19 @@ In geometrized units ($G = c = 1$), the moment of inertia of a slowly rotating K
 Numerical studies of slowly rotating isotropic fluid stars consistently find $\Ibar = I/M^3 > 4$: uniform-density Schwarzschild stars approach $I/(MR^2) \to 0.7992$ and $\Ibar \to 4.046$ at the Buchdahl limit $M/R \to 4/9$ \cite{ChandrasekharMiller1974,Posada2017}, realistic nuclear equations of state lie well above $4$ \cite{YagiYunes2013,BreuRezzolla2016}, and a recent Hartle--Thorne study by Barta and Gergely \cite{BartaGergely2026} likewise notes in passing that four tabulated nuclear EOS sequences remain above the Kerr value $4$.
 
 \paragraph{Relation to Hartle (1978) and Sabbadini--Hartle (1977).}
-A careful distinction within Hartle's foundational papers is essential for locating the originality of the present work. In Sabbadini and Hartle \cite{SabbadiniHartle1977} and Sections~5.1--5.2 of Hartle \cite{Hartle1978}, variational bounds on stellar mass and moment of inertia are constructed assuming that the equation of state is known below a fiducial matching density $\rho_0$ and obeys causality ($\dd p/\dd\eps \le 1$) above $\rho_0$. However, in \textbf{Section~5.3.2 of Hartle \cite{Hartle1978}} (pp.~233--234 and Fig.~8, whose caption explicitly notes that \emph{``no detailed knowledge of the equation of state has been assumed in any density regime''}), Hartle drops both the low-density EOS and causality, and uses variational extremization over locally non-increasing density profiles to identify the uniform-density Buchdahl limit ($M/R = 4/9$, $I/(MR^2) \approx 0.799$, $\Ibar \approx 4.045$) as the minimizing configuration for $I/M^3$.
+A careful distinction within Hartle's foundational papers is essential for locating the originality of the present work. In Sabbadini and Hartle \cite{SabbadiniHartle1977} and Sections~5.1--5.2 of Hartle \cite{Hartle1978}, variational bounds on stellar mass and moment of inertia are constructed assuming that the equation of state is known below a fiducial matching density $\rho_0$ and obeys causality ($\dd p/\dd\eps \le 1$) above $\rho_0$. However, in \textbf{Section~5.3.2 of Hartle \cite{Hartle1978}} (pp.~233--234 and Fig.~8, reproduced from his Ref.~[42] with the caption \emph{``no detailed knowledge of the equation of state has been assumed in any density regime''}), Hartle drops both the low-density EOS and causality and presents two-sided variational bounds of the form $M R^2 \sigma_{\mathrm{lower}}(M/R) \le I \le M R^2 \sigma_{\mathrm{upper}}(M/R)$ under local density monotonicity and microscopic stability ($\dd p/\dd\eps \ge 0$). Although Hartle does not explicitly state an $I \ge k M^3$ inequality, a Kerr comparison, or the number $4.045$ in that section, combining his lower curve ($I/(MR^2) \approx 0.799$ at $M/R = 4/9$) with Buchdahl's bound $M/R \le 4/9$ yields an immediate graphical inference $I/M^3 \gtrsim 4.045$ for locally monotone stars without requiring the dominant energy condition (DEC).
 
-Hartle's \S5.3.2 analysis is variational and partly numerical rather than a closed-form constructive differential proof, and assumes local density monotonicity without the dominant energy condition (DEC). The contribution of the present paper is therefore \emph{not} the discovery of the physical expectation $\Ibar > 4$, but rather:
+Accordingly, the physical expectation $\Ibar > 4$ for locally monotone stars is already closely anticipated by Hartle's 1978 variational analysis. The contribution of the present paper is therefore:
 \begin{enumerate}
   \item a \textbf{zero-numerical, constructive differential-barrier proof} establishing both $I > 4 M^3$ and the \textbf{uniform positive gap} $I > (1001/250) M^3 = 4.004 M^3$ (so $\inf \Ibar \ge 4.004 > 4$);
-  \item validity under the \textbf{strictly weaker non-increasing mean-density hypothesis} $4\pi r^3 \eps(r) \le 3 m(r)$ (permitting upward local density jumps that violate local monotonicity $\eps' \le 0$) together with isotropic DEC ($0 \le p \le \eps$) and finitely many interior interfaces; and
-  \item a \textbf{complete Lean~4.36.0 + Mathlib machine-checked formalization} with exact rational Bernstein certificates and zero floating-point arithmetic.
+  \item validity under the \textbf{strictly weaker non-increasing mean-density hypothesis} $4\pi r^3 \eps(r) \le 3 m(r)$ (permitting upward local density jumps that violate $\eps' \le 0$ and microscopic stability $\dd p/\dd\eps \ge 0$; such density-inverted configurations need not be dynamically stable) together with isotropic DEC ($0 \le p \le \eps$) and finitely many interior interfaces; and
+  \item a \textbf{complete Lean~4.36.0 + Mathlib machine-checked formalization} of the reduced-ODE proof chain with exact rational Bernstein certificates and zero floating-point arithmetic.
 \end{enumerate}
 
 \paragraph{Relation to compactness theorems.}
 Our inertia barrier requires the metric factor $s(r)^2 = 1 - 2 m(r)/r$ to remain strictly above $23/125$. To keep the proof self-contained, we prove an \emph{auxiliary} compactness lemma, $m(r)/r < 51/125 = 0.408$, via a two-piece polynomial barrier in Bondi's $(u,v)$ phase plane \cite{Bondi1964}. This is an auxiliary tool rather than a new sharp compactness record; classical and sharp compactness theorems include Buchdahl \cite{Buchdahl1959} ($M/R \le 4/9$ for monotone isotropic fluids), Bondi \cite{Bondi1964}, Barraco and Hamity \cite{BarracoHamity2002}, Karageorgis and Stalker \cite{KarageorgisStalker2008}, and Andr\'easson \cite{Andreasson2008} ($2M/R \le 8/9$ for anisotropic spheres under $p_r + 2 p_t \le \eps$).
 
-We note a useful quantitative clarification regarding $M/R \le 3/8 = 0.375$. For a \emph{uniform-density} isotropic star ($\eps = \bar{\eps}$), Buchdahl's central-pressure formula gives $p_c/\bar{\eps} = (1-\sqrt{1-2C})/(3\sqrt{1-2C}-1)$, so DEC ($p_c \le \bar{\eps}$) forces $C = M/R \le 3/8 = 0.375$. For a \emph{non-uniform} monotone-density star, however, $\eps_c > \bar{\eps}$ allows $p_c/\bar{\eps} > 1$ while still respecting $p_c \le \eps_c$. As verified in Section~\ref{sec:sharpness}, an explicit two-zone locally monotone isotropic DEC star reaches $M/R = 0.398800 > 3/8$, and within the wider mean-density class ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars reach $M/R = 0.405568$ (matching Bondi's relaxed ceiling $0.405573$). Our auxiliary polynomial wall $51/125 = 0.408$ therefore lies within $0.0024$ ($0.6\%$) of the true supremum of the mean-density DEC class.
+We note a useful quantitative clarification regarding $M/R \le 3/8 = 0.375$. For a \emph{uniform-density} isotropic star ($\eps = \bar{\eps}$), Buchdahl's central-pressure formula gives $p_c/\bar{\eps} = (1-\sqrt{1-2C})/(3\sqrt{1-2C}-1)$, so DEC ($p_c \le \bar{\eps}$) forces $C = M/R \le 3/8 = 0.375$. For a \emph{non-uniform} monotone-density star, however, $\eps_c > \bar{\eps}$ allows $p_c/\bar{\eps} > 1$ while still respecting $p_c \le \eps_c$. As verified in Section~\ref{sec:sharpness}, an explicit two-zone locally monotone isotropic DEC star reaches $M/R = 0.398800 > 3/8$, and within the wider mean-density class ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars reach $M/R = 0.405568$ (approaching the relaxed Bondi-plane bang--bang ceiling $0.405573$ computed numerically in \texttt{scripts/verify\_paper\_benchmarks.py}). Our auxiliary polynomial wall $51/125 = 0.408$ therefore lies within $0.0024$ ($0.6\%$) of the relaxed bang--bang ceiling.
 
 \paragraph{Separation of formal vs.\ numerical content and caveats.}
 To avoid any ambiguity between formally verified results and supplementary diagnostics:
@@ -274,7 +274,7 @@ Put $v \equiv \pi_p$ and $e \equiv \pi_e$. Hypotheses (H5) and (H6) restrict $e 
   B_2(u) &\;=\; B_1\!\left(\frac{49}{200}\right) + d\!\left(-\frac{23}{20} - \frac{133}{20} d + \frac{13}{10} d^2\right),
   \qquad d = u - \frac{49}{200},\quad u \in \left[\frac{49}{200}, \frac{51}{125}\right], \label{eq:B2}
 \end{align}
-extended constantly by $B_2(51/125)$ for $u > 51/125$. Direct rational arithmetic checks $B_1(49/200) = B_2(49/200)$, $B_1'(49/200) \approx -0.8442 > -1.15 = B_2'(49/200)$ (strict convex corner), and $B_2(51/125) < 0$.
+extended constantly by $B_2(51/125)$ for $u > 51/125$. Direct rational arithmetic checks $B_1(49/200) = B_2(49/200)$, $B_1'(49/200) \approx -0.8442 > -1.15 = B_2'(49/200)$ (a strict concave downward-bending corner, so $\{0 \le v \le B(u)\}$ is locally the intersection of two positively invariant regions), and $B_2(51/125) < 0$.
 
 Off $\mathcal{J}$, \eqref{eq:tov-bondi} gives
 \begin{equation}
@@ -360,7 +360,7 @@ Apply Lemma~\ref{lem:parametric-partC} at $\Ibar_0 = 1001/250$. On $t \in [23/12
 \end{proof}
 
 \begin{remark}[Tightness of the barrier margin]
-The proof is finely tuned in compactness: at $\alpha = 69/100$ and $\Ibar_0 = 4$, $e_5(t)$ changes sign at $t \approx 0.179493$ ($u \approx 0.410253$), only $0.00225$ above our auxiliary compactness wall $u < 51/125 = 0.408$ (and $0.00468$ above Bondi's relaxed ceiling $0.405573$). This thin margin explains why $\Ibar_0$ can be pushed cleanly past $4$ to $4.004$ by the same barrier without changing $\alpha$ or the compactness wall, while substantially larger bounds (toward the numerical infimum $\approx 4.264$) require a sharper barrier.
+The proof is finely tuned in compactness: at $\alpha = 69/100$ and $\Ibar_0 = 4$, $e_5(t)$ changes sign at $t \approx 0.179493$ ($u \approx 0.410253$), only $0.00225$ above our auxiliary compactness wall $u < 51/125 = 0.408$ (and $0.00468$ above the relaxed bang--bang ceiling $0.405573$). Consequently, $\Ibar_0 = 4.004$ is close to the ceiling of this single-parameter barrier (which fails near $\Ibar_0 = 4.05$) and should be viewed as establishing a qualitative uniform separation $\inf \Ibar > 4$ rather than approaching the numerical infimum upper bound $\approx 4.264$.
 \end{remark}
 
 \section{Non-Vacuity: Explicit Analytic Smooth and Two-Layer Witnesses}
@@ -398,7 +398,7 @@ Table~\ref{tab:sharpness} compares coupled Hartle--TOV integrations across three
 \begin{enumerate}
   \item \emph{Uniform-density Schwarzschild stars} ($\eps = \text{const}$): hit the uniform DEC ceiling $p_c = \eps$ at $C = 3/8 = 0.375$ with $\Ibar = 4.654887$, and approach the Buchdahl limit $C \to 4/9$ (violating DEC) with $I/(MR^2) \to 0.7992$ and $\Ibar \to 4.0459$ \cite{ChandrasekharMiller1974,Hartle1978,Posada2017}.
   \item \emph{Locally monotone ($\eps' \le 0$) two-zone DEC stars}: a stiff $p = \eps$ core on $[0, r_{\mathrm{sw}}]$ matched continuously in $\eps$ and $p$ to a constant-density envelope $\eps = p(r_{\mathrm{sw}})$ on $[r_{\mathrm{sw}}, R]$ (in units $\eps_c = 1$). These stars satisfy $\eps' \le 0$ and $0 \le p \le \eps$ everywhere, exceed $C = 3/8$ to reach $C = 0.398800$, and reach $\Ibar = 4.285459$ at $r_{\mathrm{sw}} = 0.40$.
-  \item \emph{Mean-density monotone ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars} (the exact wider class of Definition~\ref{def:star} + (H6)): the same $p = \eps$ core on $[0, r_{\mathrm{sw}}]$, followed by an upward density jump at $r_{\mathrm{sw}}$ to constant envelope density $\eps_{\mathrm{env}} = 3 m(r_{\mathrm{sw}})/(4\pi r_{\mathrm{sw}}^3) > p(r_{\mathrm{sw}})$ so that $4\pi r^3 \eps = 3 m$ holds identically on $[r_{\mathrm{sw}}, R]$. These stars reach $C = 0.405568$ (at $r_{\mathrm{sw}} = 0.45$, matching Bondi's relaxed ceiling $0.405573$) and drop further to $\Ibar = 4.263934$ (at $r_{\mathrm{sw}} = 0.55$).
+  \item \emph{Mean-density monotone ($4\pi r^3 \eps \le 3 m$) bang--bang DEC stars} (the exact wider class of Definition~\ref{def:star} + (H6)): the same $p = \eps$ core on $[0, r_{\mathrm{sw}}]$, followed by an upward density jump at $r_{\mathrm{sw}}$ to constant envelope density $\eps_{\mathrm{env}} = 3 m(r_{\mathrm{sw}})/(4\pi r_{\mathrm{sw}}^3) > p(r_{\mathrm{sw}})$ so that $4\pi r^3 \eps = 3 m$ holds identically on $[r_{\mathrm{sw}}, R]$. Within this sampled two-zone ansatz, stars reach $C = 0.405568$ (at $r_{\mathrm{sw}} = 0.45$, near the relaxed bang--bang ceiling $0.405573$) and $\Ibar = 4.263934$ (at $r_{\mathrm{sw}} = 0.55$), supplying an explicit upper bound on $\inf \Ibar$ (not a proof that this ansatz is globally optimal).
 \end{enumerate}
 
 \begin{table}[ht]
@@ -423,15 +423,15 @@ Theorem~\ref{thm:uniform-gap} (Lean~4) & Uniform lower bound & $\le 1$ & $< 0.40
 Kerr black hole & Slow-rotation limit & --- & $0.500000$ & --- & $4.000000$ \\
 \bottomrule
 \end{tabular}
-\caption{Coupled Hartle--TOV sharpness benchmarks generated by \texttt{scripts/verify\_paper\_benchmarks.py}. Within the theorem's own mean-density DEC class, bang--bang stars reach $C = 0.405568$ and $\Ibar = 4.263934$, placing the true infimum in $[4.004, 4.264]$.}
+\caption{Coupled Hartle--TOV sharpness benchmarks generated by \texttt{scripts/verify\_paper\_benchmarks.py}. Within the theorem's own mean-density DEC class, sampled bang--bang stars reach $C = 0.405568$ and $\Ibar = 4.263934$, placing the true infimum in $[4.004, 4.264]$ (the upper figure is an ansatz upper bound, not a proved global minimum).}
 \label{tab:sharpness}
 \end{table}
 
 \subsection{Beyond-DEC Numerical Extension and the Open Buchdahl Problem}
 
-For a general upper pressure bound $0 \le p \le w \eps$, numerically optimizing $\alpha \in [0.65, 0.72]$ in Proposition~\ref{prop:partA} at $\Ibar_0 = 4$ (reproduced in \texttt{scripts/verify\_paper\_benchmarks.py}) gives $\alpha_* \approx 0.696647$ at $w=1$ (compactness threshold $u \le 0.411497 > 0.405573$) and shows that the barrier threshold remains above Bondi's relaxed compactness ceiling $\mu_{\max}(w)$ up to $w_* \approx 1.155605$ (where $\mu_{\max}(w_*) \approx 0.411339$). Dropping the upper pressure bound altogether (the full Buchdahl class, $p/\eps \to \infty$) causes $c_p < 0$ to dominate $c_e$ on $u \in (0.3674, 4/9)$, so extending our constructive barrier proof to the full Buchdahl class remains an open problem.
+For a general upper pressure bound $0 \le p \le w \eps$, numerically optimizing $\alpha \in [0.65, 0.72]$ in Proposition~\ref{prop:partA} at $\Ibar_0 = 4$ (reproduced in \texttt{scripts/verify\_paper\_benchmarks.py}) gives $\alpha_* \approx 0.696647$ at $w=1$ (compactness threshold $u \le 0.411497 > 0.405573$) and shows that the barrier threshold remains above the numerically integrated relaxed bang--bang compactness ceiling $\mu_{\max}(w)$ up to $w_* \approx 1.155605$ (where $\mu_{\max}(w_*) \approx 0.411339$). Dropping the upper pressure bound altogether (the full Buchdahl class, $p/\eps \to \infty$) causes $c_p < 0$ to dominate $c_e$ on $u \in (0.3674, 4/9)$, so extending our constructive barrier proof to the full Buchdahl class remains an open problem.
 
-\subsection{Necessity of Isotropy: Explicit Smooth Anisotropic Full-DEC Counterexamples}
+\subsection{DEC Alone Is Insufficient Without Isotropy: Explicit Smooth Anisotropic Counterexamples}
 
 When pressure isotropy ($p_r = p_t$) is relaxed to allow tangential stress $p_t \neq p_r$ under rigid slow rotation \cite{Silva2015}, the Riccati equation \eqref{eq:hartle-Z} generalizes to
 \begin{equation}
@@ -453,7 +453,7 @@ which has an isotropic center ($q - p = O(r^8)$), strictly decreasing energy den
   R \approx 2.7233, \qquad C = \frac{M}{R} \approx 0.07286, \qquad \max_r\frac{m}{r} \approx 0.2418, \qquad
   \Ibar = \frac{I}{M^3} \approx 3.758145 \;<\; 4.
 \]
-(A continuous piecewise model with $c = 1$, $q = p$ on $[0, 0.4]$ and $q = -e$ on $(0.4, R]$ lowers this further to $\Ibar \approx 3.557269 < 4$ at $C \approx 0.06516$.) Thus the isotropy hypothesis in Theorems~\ref{thm:kerr-inertia} and~\ref{thm:uniform-gap} cannot be dropped without replacing it by a lower bound on $p_t$.
+(A continuous piecewise model with $c = 1$, $q = p$ on $[0, 0.4]$ and $q = -e$ on $(0.4, R]$ lowers this further to $\Ibar \approx 3.557269 < 4$ at $C \approx 0.06516$.) Note that because $p_t \approx -0.99\,\eps$ in the outer envelope, these configurations violate the strong energy condition ($\eps + p_r + 2 p_t < 0$) while strictly obeying the dominant energy condition. Thus DEC alone is not sufficient to guarantee $I > 4 M^3$ for anisotropic stars: dropping isotropy requires imposing an additional lower bound on tangential pressure $p_t$ (such as $p_t \ge 0$ or SEC).
 
 \section{Lean~4 Formalization, Verification, and Workflow Disclosure}
 \label{sec:lean}
@@ -501,7 +501,7 @@ S.~Chandrasekhar and J.~C.~Miller,
 \bibitem{SabbadiniHartle1977}
 A.~G.~Sabbadini and J.~B.~Hartle,
 ``Bounds on the moment of inertia of nonrotating neutron stars,''
-\emph{Ann.\ Phys.} \textbf{104} (1977) 95--113.
+\emph{Ann.\ Phys.} \textbf{104} (1977) 95--133.
 
 \bibitem{Hartle1978}
 J.~B.~Hartle,

@@ -1,11 +1,12 @@
 import Mathlib
 
 /-!
-# T4A-18: the unconditional Kerr inertia floor `I > 4 M³` (N40 ⟹ N41)
+# Equation-of-State-Independent Kerr Inertia Lower Bound and Uniform Gap
 
-Formalisation of the Sprint-2 (5-for-5 blind-audited) flagship theorem `T4A-18` of
-`branches/track-4a-continuum-bounds/LEDGER.md`, following the exact proof chain of
-`branches/track-4a-continuum-bounds/audit/sprint2-opus/t4a18_kerr_chain.py`.
+Formalisation of the moment-of-inertia lower bound `I > 4 M³` and the uniform positive gap
+`I > (1001/250) M³ = 4.004 M³` for static, spherically symmetric, horizonless, isotropic
+relativistic stars satisfying the dominant energy condition (`0 ≤ p ≤ ε`) and non-increasing
+mean energy density (`4π r³ ε ≤ 3 m`), allowing finitely many interior density discontinuities.
 
 Units `G = c = 1`. Notation along the star: `u = m/r`, `π_e = 4π r² ε`, `π_p = 4π r² p`,
 `s = √(1 − 2u)`, `Z = r s ω̄'/ω̄`, `W_α = Z − 2α π_p / s`, and the Schwarzschild vacuum curve
@@ -38,8 +39,8 @@ compactness `(1 − s²)/2` with `I/M³ = Ī₀`).
   `t4a18_uniform_kerr_inertia_gap_of_antitone_piecewise` and
   `t4a18_uniform_kerr_inertia_gap_of_antitone`.
 
-**Scope: piecewise-smooth stars (ordinary interior density jumps).** As in `LEDGER.md` (N40/N41),
-the star class `PiecewiseRegularIsotropicDECStar` allows a finite set `jumps : Finset ℝ` of
+**Scope: piecewise-smooth stars (ordinary interior density jumps).**
+The star class `PiecewiseRegularIsotropicDECStar` allows a finite set `jumps : Finset ℝ` of
 interface radii (first-order phase transitions, and optionally the surface): `m, p, Z` are only
 required to be continuous on `(0, R]`, and the TOV/Hartle equations hold pointwise on
 `(0, R] \ jumps` (at a density jump `m` has unequal one-sided derivatives, so `HasDerivAt m`
